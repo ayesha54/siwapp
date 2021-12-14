@@ -26,3 +26,4 @@ Template.create(name: "Email Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_default.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= invoice %>",
                 email_default: true)
+User.create(name: "demo",email: "demo@example.com", password: "secret_password")
