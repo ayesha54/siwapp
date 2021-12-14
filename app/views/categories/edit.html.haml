@@ -3,9 +3,9 @@
     %h3 Add a category
     = "<div>#{@category.errors.full_messages.first}</div>".html_safe if @category.errors.any?
     %p
-    %div
+    %div.form-group
       %label category Name
-      = f.text_field :name
-    %div
-      = link_to 'Back', { controller: 'categories', action: 'index'}
-      = f.submit 'Update category'
+      = f.text_field :name, class: "form-control"
+    %div.form-group
+      = link_to 'Back', { controller: 'categories', action: 'index'}, class: "btn btn-light"
+      = f.submit 'Update category', class: "btn btn-primary"

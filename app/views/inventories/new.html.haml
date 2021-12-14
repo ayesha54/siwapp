@@ -1,18 +1,19 @@
-= form_for @inventory, url: {action: :create} do |f|
-  %div
-    %h3 Add a inventory
-  %div
-    %p
-      = "<div>#{@inventory.errors.full_messages.first}</div>".html_safe if @inventory.errors.any?
+.container
+  = form_for @inventory, url: {action: :create} do |f|
     %div
-      %label Inventory Name
-      = f.text_field :name
+      %h3 Add a inventory
     %div
-      %label Price
-      = f.text_field :price
-    %div
-      %label Category
-      = f.collection_select :category_id, Category.all, :id, :name, {}, {multiple: false, class: 'form-control c-select'}
-  %div
-    = link_to 'Back', { controller: 'inventories', action: 'index'}
-    = f.submit 'Create Inventory'
+      %p
+        = "<div>#{@inventory.errors.full_messages.first}</div>".html_safe if @inventory.errors.any?
+      %div.form-group
+        %label Inventory Name
+        = f.text_field :name, class: "form-control"
+      %div.form-group
+        %label Price
+        = f.text_field :price, class: "form-control"
+      %div.form-group
+        %label Category
+        = f.collection_select :category_id, Category.all, :id, :name, {}, {multiple: false, class: 'form-control c-select'}
+    %div.form-group
+      = link_to 'Back', { controller: 'inventories', action: 'index'}, class: "btn btn-light"
+      = f.submit 'Create Inventory', class: "btn btn-primary"
