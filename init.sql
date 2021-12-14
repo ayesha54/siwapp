@@ -1,0 +1,2 @@
+CREATE USER nawaal ;
+ALTER USER nawaal WITH SUPERUSER;
