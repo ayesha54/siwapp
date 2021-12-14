@@ -14,7 +14,7 @@ services:
       - db
     image: siwapp/siwapp
     networks:
-      - my-network
+      - default-network
     ports:
       - 3000:3000
     volumes:
@@ -36,7 +36,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - my-network
+      - default-network
 networks:
-  my-network:
+  default-network:
     driver: bridge
