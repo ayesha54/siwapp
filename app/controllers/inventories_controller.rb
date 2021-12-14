@@ -55,13 +55,13 @@ class InventoriesController < ApplicationController
   # DELETE method for deleting a Inventory from database based on id   
   def destroy   
     @inventory = Inventory.find(params[:id])   
-    if @category.delete   
-      flash[:notice] = 'Inventory deleted!'
-      redirect_to categories_path
-    else   
-      flash[:error] = 'Failed to delete this Inventory!'   
-      render :destroy   
-    end   
+    respond_to do |format|  
+      if @inventory.destroy
+        format.html {redirect_to inventories_path, notice: 'Inventory was successfully destroyed.' }
+      else
+        format.html { render :edit }
+      end
+    end
   end
 
   # we used strong parameters for the validation of params   
