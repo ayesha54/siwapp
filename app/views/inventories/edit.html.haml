@@ -3,15 +3,15 @@
     %h3 Add a inventory
     = "<div>#{@inventory.errors.full_messages.first}</div>".html_safe if @inventory.errors.any?
     %p
-    %div
+    %div.form-group
       %label Inventory Name
-      = f.text_field :name
-    %div
+      = f.text_field :name, class: "form-control"
+    %div.form-group
       %label Price
-      = f.text_field :price
-    %div
+      = f.text_field :price, class: "form-control"
+    %div.form-group
       %label Category
       = f.collection_select :category_id, Category.all, :id, :name, {}, {multiple: false, class: 'form-control c-select'}
-    %div
-      = link_to 'Back', { controller: 'inventories', action: 'index'}
-      = f.submit 'Update inventory'
+    %div.form-group
+      = link_to 'Back', { controller: 'inventories', action: 'index'}, class: "btn btn-light"
+      = f.submit 'Update inventory', class: "btn btn-primary"
