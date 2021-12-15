@@ -5,8 +5,7 @@
 
   .invoice-col.invoice-col--description.form-group
     = f.label "Inventory"
-    = f.select :inventory_id, options_for_select(@inventories.collect { |inventory|   |
-      [inventory.name, inventory.price] }, 0), {}, { class:"form-control c-select inventory-select"} |
+    = f.collection_select :inventory_id, @inventories, :price, :id, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
@@ -38,6 +37,14 @@
   = f.hidden_field :id
 
 :javascript
+  $(function() {
+    $(".inventory-select").each(function(e) {
+      var id_string = this.id;
+      var id = id_string.split("_")[3];
+      $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value);
+    });
+  });
+
   $(".inventory-select").change(function() {
     var id_string = this.id;
     var id = id_string.split("_")[3];

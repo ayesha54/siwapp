@@ -4,10 +4,13 @@ class ItemsController < ApplicationController
   #
   # Calculates the net amount for an item
   def amount
+    unitary_cost = params[:unitary_cost].present? ? params[:unitary_cost] : 0
+    quantity     = params[:quantity].present? ? params[:quantity] : 0
+    discount     = params[:discount].present? ? params[:discount] : 0
     item = Item.new(
-      unitary_cost: params[:unitary_cost],
-      quantity: params[:quantity],
-      discount: params[:discount]
+      unitary_cost: unitary_cost,
+      quantity: quantity,
+      discount: discount
     )
     @amount = item.net_amount
 
