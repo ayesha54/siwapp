@@ -27,4 +27,4 @@ WORKDIR /app
 
 # Install dependencies
 RUN bundle install
-# ENTRYPOINT ["./entrypoints/docker-entrypoint.sh"]
+ENTRYPOINT ["./entrypoints/docker-entrypoint.sh"]
