@@ -19,11 +19,11 @@ class Item < ActiveRecord::Base
   end
 
   def base_amount
-    unitary_cost * quantity
+    (unitary_cost.to_f * quantity.to_f)
   end
 
   def discount_amount
-    base_amount * discount / 100.0
+    (base_amount.to_f * discount.to_f) / 100.0
   end
 
   def net_amount
