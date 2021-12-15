@@ -9,15 +9,15 @@
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
-    = f.text_field :quantity, class: "form-control", "data-role": "quantity"
+    = f.text_field :quantity, class: "form-control quantity", "data-role": "quantity"
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
-    = f.text_field :unitary_cost, class: "form-control", "data-role": "unitary-cost"
+    = f.text_field :unitary_cost, class: "form-control unitary-cost", "data-role": "unitary-cost"
 
   .invoice-col.invoice-col--discount.form-group
     = f.label :discount
-    = f.text_field :discount, class: "form-control", "data-role": "discount"
+    = f.text_field :discount, class: "form-control discount", "data-role": "discount"
 
   .invoice-col.invoice-col--taxes.form-group
     %label{"data-role": "taxes-selector-label"}
