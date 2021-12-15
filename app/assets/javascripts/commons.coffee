@@ -29,7 +29,7 @@ get_defaults_taxes = (callback) ->
 # Retrieves the common part of the id of all fields in a cocoon formset row
 get_id_prefix = (input_field) ->
   id_prefix = input_field.attr('id')
-  id_prefix = id_prefix.substring(0, id_prefix.lastIndexOf('_'))
+  # id_prefix = id_prefix.substring(0, id_prefix.lastIndexOf('_'))
   id_prefix
 
 # Function to initialize autocomplete behavior on invoice-like items
@@ -109,21 +109,9 @@ jQuery(document).ready ($) ->
   form.find('[data-changes="amount"]')
     # When an item changes, update form amounts
     .on 'change input', '.js-item', (e) ->
-      item = $(e.target)
-      if item.prop('tagName') == 'TEXTAREA'
+      if ($(e.target).hasClass('category-select'))
         return
-      # Set the net amount of the item
-      item_row = item.parents('.js-item')
-      quantity = item_row.find('[data-role="quantity"]').val()
-      price = item_row.find('[data-role="unitary-cost"]').val()
-      discount = item_row.find('[data-role="discount"]').val()
-      get_item_amount quantity, price, discount, (data) ->
-        net_amount = data.amount
-        item_row.find('[data-role="net-amount"]').val(net_amount)
-        item_row.find('.js-net-amount').html(net_amount)
-
-      # Set total amounts of invoice
-      set_amounts(controller_name, form)
+      calculateTotal(e)
     # When an item is removed, update form amounts
     .on 'cocoon:after-remove', (e, item) ->
       set_amounts(controller_name, form)
@@ -246,19 +234,35 @@ jQuery(document).ready ($) ->
   $('[data-role="select-autocomplete"]').select2
     theme: "bs4"
 
-  $ ->
-    $(document).on 'change', '.category-select', (evt) ->
-      id_string = this.id;
-      id = id_string.split("_")[3];
-      console.log(id)
-      $.ajax 'http://localhost:3000/update_inventory',
-        type: 'GET'
-        dataType: 'script'
-        data: {
-          category_id: this.value,
-          select_id: id
-        }
-        error: (jqXHR, textStatus, errorThrown) ->
-          console.log("AJAX Error: #{textStatus}")
-        success: (data, textStatus, jqXHR) ->
-          console.log("Dynamic OK!")
+  $(document).on 'change', '.category-select', (e) ->
+    id_string = this.id;
+    id = id_string.split("_")[3];
+    url = Routes["invoice_update_inventory_path"]()
+    $.ajax url,
+      type: 'GET'
+      dataType: 'script'
+      data: {
+        category_id: this.value,
+        select_id: id
+      }
+      error: (jqXHR, textStatus, errorThrown) ->
+        console.log("AJAX Error: #{textStatus}")
+      success: (data, textStatus, jqXHR) ->
+        calculateTotal(e)
+
+  calculateTotal = (e) ->
+    item = $(e.target)
+    if item.prop('tagName') == 'TEXTAREA'
+      return
+    # Set the net amount of the item
+    item_row = item.parents('.js-item')
+    quantity = item_row.find('[data-role="quantity"]').val()
+    price = item_row.find('[data-role="unitary-cost"]').val()
+    discount = item_row.find('[data-role="discount"]').val()
+    get_item_amount quantity, price, discount, (data) ->
+      net_amount = data.amount
+      item_row.find('[data-role="net-amount"]').val(net_amount)
+      item_row.find('.js-net-amount').html(net_amount)
+
+    # Set total amounts of invoice
+    set_amounts(controller_name, form)
