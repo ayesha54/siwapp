@@ -107,12 +107,12 @@ jQuery(document).ready ($) ->
 
   # Find sections that change the amounts of the invoice-like form
   form.find('[data-changes="amount"]')
-    # When an item changes, update form amounts
-    .on 'change input', '.js-item', (e) ->
-      if ($(e.target).hasClass('category-select'))
-        return
-      calculateTotal(e)
-    # When an item is removed, update form amounts
+  #   # When an item changes, update form amounts
+  #   .on 'change input', '.js-item', (e) ->
+  #     if ($(e.target).hasClass('category-select'))
+  #       return
+  #     calculateTotal(e)
+  #   # When an item is removed, update form amounts
     .on 'cocoon:after-remove', (e, item) ->
       set_amounts(controller_name, form)
 
@@ -245,11 +245,16 @@ jQuery(document).ready ($) ->
         category_id: this.value,
         select_id: id
       }
-      error: (jqXHR, textStatus, errorThrown) ->
-        console.log("AJAX Error: #{textStatus}")
       success: (data, textStatus, jqXHR) ->
         calculateTotal(e)
-
+  $(document).on 'change', '.inventory-select', (e) ->
+    calculateTotal(e)
+  $(document).on 'change', '.unitary-cost', (e) ->
+    calculateTotal(e)
+  $(document).on 'change', '.quantity', (e) ->
+    calculateTotal(e)
+  $(document).on 'change', '.discount', (e) ->
+    calculateTotal(e)
   calculateTotal = (e) ->
     item = $(e.target)
     if item.prop('tagName') == 'TEXTAREA'
@@ -260,9 +265,9 @@ jQuery(document).ready ($) ->
     price = item_row.find('[data-role="unitary-cost"]').val()
     discount = item_row.find('[data-role="discount"]').val()
     get_item_amount quantity, price, discount, (data) ->
+      console.log(data)
       net_amount = data.amount
       item_row.find('[data-role="net-amount"]').val(net_amount)
       item_row.find('.js-net-amount').html(net_amount)
-
-    # Set total amounts of invoice
     set_amounts(controller_name, form)
+    
