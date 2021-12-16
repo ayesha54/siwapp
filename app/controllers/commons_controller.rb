@@ -50,7 +50,6 @@ class CommonsController < ApplicationController
       end
       @results = @results.where(conditions.join(" and "))
     end
-
     set_listing @results.paginate(page: params[:page], per_page: 20)
 
     respond_to do |format|
