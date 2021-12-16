@@ -51,7 +51,6 @@ class CommonsController < ApplicationController
       @results = @results.where(conditions.join(" and "))
     end
     set_listing @results.paginate(page: params[:page], per_page: 20)
-
     respond_to do |format|
       format.html { render sti_template(@type, action_name), layout: 'infinite-scrolling' }
       format.csv do
