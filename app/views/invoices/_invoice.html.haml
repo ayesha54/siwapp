@@ -1,3 +1,4 @@
+
 %tr{data: {href: invoice_path(invoice), itemid: invoice.id, page_start: invoice_counter.zero?, page: current_page }}
   %td.table-select{"data-no-href": ""}= check_box_tag "invoice_ids[]", invoice.id, false, {"data-role": "select-row", id: "invoice_ids_#{invoice.id}"}
   %td.no-wrap= link_to invoice, invoice

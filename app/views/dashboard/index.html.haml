@@ -16,5 +16,5 @@
           %th.text-right=t("pending")
           %th.text-right=t("total")
       %tbody{data: {role: 'infinite-content'}}
-        = render @objects, current_page: @objects.current_page
+        = render "invoices/list_invoices", invoices: @objects
 
