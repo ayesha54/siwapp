@@ -11,7 +11,7 @@ module CommonsControllerMixin
     @search = model.ransack(params[:q])
 
     @results = @search.result(distinct: true)\
-      .order(issue_date: :desc).order(id: :asc)
+      .order(issue_date: :desc).order(id: :desc)
 
     # Another query without distinct to get the sums right
     # This is because the query with distinct looks like:

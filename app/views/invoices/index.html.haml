@@ -38,7 +38,7 @@
             %th.text-right=t("pending")
             %th.text-right= sort_link(@search, :gross_amount, t("total"))
         %tbody{data: {role: 'infinite-content'}}
-          = render @invoices, current_page: @invoices.current_page
+          = render "invoices/list_invoices", invoices: @invoices
     .content-loading.hide{data: {role: 'infinite-status'}}
       .spinner
 
