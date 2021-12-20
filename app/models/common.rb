@@ -38,7 +38,7 @@ class Common < ActiveRecord::Base
 
   # Events
   after_save :purge_items
-  after_save :update_amounts
+  # after_save :update_amounts
   after_initialize :init
 
   # Search

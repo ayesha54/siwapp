@@ -5,7 +5,7 @@
 
   .invoice-col.invoice-col--description.form-group
     = f.label "Inventory"
-    = f.collection_select :inventory_id, @inventories, :price, :id, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
+    = f.collection_select :inventory_id, @inventories, :id, :name, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
@@ -39,14 +39,17 @@
 :javascript
   $(function() {
     $(".inventory-select").each(function(e) {
+      if (window.location.href.includes("/edit")) return
       var id_string = this.id;
       var id = id_string.split("_")[3];
-      $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value);
+      $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
+      $("#invoice_items_attributes_" + id + "_id").val(id);
     });
   });
 
   $(".inventory-select").change(function() {
     var id_string = this.id;
     var id = id_string.split("_")[3];
-    $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value);
+    $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
+    $("#invoice_items_attributes_" + id + "_id").val(id);
   });
