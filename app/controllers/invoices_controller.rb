@@ -10,6 +10,74 @@ class InvoicesController < CommonsController
     end
   end
 
+  def edit
+    @invoice = Invoice.where(id: params[:id]).first
+    ids = Item.where(common_id: @invoice.id).pluck(:inventory_id)
+    ids2 = Item.where(common_id: @invoice.id).pluck(:category_id)
+    @inventories = Inventory.where(id: ids)
+    # @category = Category.where(id: ids2)
+    # logger.debug "qwe123 #{@category}"
+    # @invoice.items = nil
+    # Item.where(common_id: @invoice.id).each do |item|
+    #   @invoice.items << item
+    # end
+    # put an empty item
+    # @invoice.items << Item.new(common: @invoice, taxes: Tax.default)
+    render
+  end
+
+  def create
+    @customer = Customer.where(name: params[:invoice][:name]).first
+    unless @customer 
+      @customer = Customer.new
+      @customer.name = params[:invoice][:name]
+      @customer.identification = params[:invoice][:identification]
+      @customer.email = params[:invoice][:email]
+      @customer.contact_person = params[:invoice][:contact_person]
+      @customer.invoicing_address = params[:invoice][:invoicing_address]
+      @customer.shipping_address = params[:invoice][:shipping_address]
+      @customer.save!
+    end
+
+    @invoice = Invoice.new
+    @invoice.name = params[:invoice][:name]
+    @invoice.identification = params[:invoice][:identification]
+    @invoice.contact_person = params[:invoice][:contact_person]
+    @invoice.email = params[:invoice][:email]
+    @invoice.invoicing_address = params[:invoice][:invoicing_address]
+    @invoice.shipping_address = params[:invoice][:shipping_address]
+    @invoice.terms = params[:invoice][:terms]
+    @invoice.notes = params[:invoice][:notes]
+    @invoice.customer_id = @customer.id
+    @invoice.currency = params[:invoice][:currency]
+    @invoice.series_id = params[:invoice][:series_id]
+    @invoice.issue_date = params[:invoice][:issue_date]
+    @invoice.due_date = params[:invoice][:due_date]
+    @invoice.email_template_id = params[:invoice][:email_template_id]
+    @invoice.print_template_id = params[:invoice][:print_template_id]
+    @invoice.save!
+
+    items = params[:invoice][:items_attributes]
+    tmparr = items.to_s.split('}, "')
+    total = 0
+    tmparr.each do |str|
+      id = str.to_i
+      item = Item.new
+      item.common_id = @invoice.id
+      item.category_id = params[:invoice][:items_attributes][id.to_s][:category_id]
+      item.inventory_id = params[:invoice][:items_attributes][id.to_s][:inventory_id].to_s.split("_")[1]
+      item.quantity = params[:invoice][:items_attributes][id.to_s][:quantity]
+      item.unitary_cost = params[:invoice][:items_attributes][id.to_s][:unitary_cost]
+      item.discount = params[:invoice][:items_attributes][id.to_s][:discount]
+      item.net_amount = params[:invoice][:items_attributes][id.to_s][:net_amount]
+      total += item.net_amount.to_i
+      item.save!
+    end
+    logger.debug "total #{total}"
+    @invoice.gross_amount = total
+    @invoice.save!
+  end
+
   # GET /invoices/new
   def new
     @inventories = Inventory.all
