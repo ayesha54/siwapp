@@ -92,6 +92,32 @@ class CustomersController < ApplicationController
     end
   end
 
+  def send_email
+    @customer = Customer.find(params[:id])
+    begin
+      @customer.send_email
+      redirect_back(fallback_location: root_path, notice: 'Email successfully sent.')
+    rescue Exception => e
+      redirect_back(fallback_location: root_path, alert: e.message)
+    end
+  end
+
+  def print
+    @customer = Customer.find(params[:id])
+    html = render_to_string :inline => @customer.get_print_template("test").template,
+      :locals => {:invoice => @customer, :settings => Settings}
+    respond_to do |format|
+      format.html { render inline: html }
+      format.pdf do
+        pdf = @customer.pdf(html)
+        send_data(pdf,
+          :filename    => "#{@customer}.pdf",
+          :disposition => 'attachment'
+        )
+      end
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_customer
