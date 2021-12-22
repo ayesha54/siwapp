@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_19_070714) do
+ActiveRecord::Schema.define(version: 2021_12_13_171939) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_070714) do
     t.integer "email_template_id"
     t.integer "deleted_number"
     t.string "currency", limit: 3
+    t.integer "category_id"
+    t.integer "inventory_id"
     t.index ["contact_person"], name: "cntct_idx"
     t.index ["customer_id"], name: "customer_id_idx"
     t.index ["deleted_at"], name: "index_commons_on_deleted_at"
@@ -108,7 +110,6 @@ ActiveRecord::Schema.define(version: 2021_12_19_070714) do
     t.datetime "deleted_at"
     t.integer "category_id"
     t.integer "inventory_id"
-    t.float "net_amount", default: 0.0
     t.index ["common_id"], name: "common_id_idx"
     t.index ["deleted_at"], name: "index_items_on_deleted_at"
     t.index ["description"], name: "desc_idx"
@@ -123,15 +124,6 @@ ActiveRecord::Schema.define(version: 2021_12_19_070714) do
   create_table "items_taxes", id: false, force: :cascade do |t|
     t.integer "item_id", null: false
     t.integer "tax_id", null: false
-  end
-
-  create_table "line_invoices", force: :cascade do |t|
-    t.bigint "commons_id"
-    t.integer "inventory"
-    t.integer "category"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["commons_id"], name: "index_line_invoices_on_commons_id"
   end
 
   create_table "payments", force: :cascade do |t|
