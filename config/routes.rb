@@ -42,6 +42,8 @@ Rails.application.routes.draw do
     get 'autocomplete', on: :collection
     resources :invoices, only: [:index]
     resources :recurring_invoices, only: [:index]
+    get 'send_email', on: :member
+    get 'print', on: :member
   end
 
   post 'templates/set_default', to: 'templates#set_default'

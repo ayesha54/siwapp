@@ -7,6 +7,14 @@ class Customer < ActiveRecord::Base
   has_many :invoices
   has_many :estimates
   has_many :recurring_invoices
+  belongs_to :print_template,
+    :class_name => 'Template',
+    :foreign_key => 'print_template_id',
+    optional: true
+  belongs_to :email_template,
+    :class_name => 'Template',
+    :foreign_key => 'email_template_id',
+    optional: true
 
   # Validation
   validate :valid_customer_identification
@@ -72,6 +80,26 @@ class Customer < ActiveRecord::Base
     csv_stream(results, self::CSV_FIELDS, results.meta_attributes_keys)
   end
 
+  def send_email
+    # There is a deliver_later method which we could use
+    CustomerMailer.email_customer(self).deliver_now
+  end
+
+  def pdf(html)
+    WickedPdf.new.pdf_from_string(html,
+      margin: {:top => "20mm", :bottom => 0, :left => 0, :right => 0})
+  end
+
+  def get_print_template(name)
+    return self.print_template || Template.find_by(name: name) || Template.first
+  end
+
+  # Returns the invoice template if set, and the default otherwise
+  def get_email_template
+    return self.email_template ||
+      Template.find_by(email_default: true) ||
+      Template.first
+  end
 
 private
 
