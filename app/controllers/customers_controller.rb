@@ -39,7 +39,7 @@ class CustomersController < ApplicationController
     @customer = Customer.new
     @rooms = Room.all
     @bed = Bed.all
-    @customer.items << Item.new(common: @invoice, taxes: Tax.default)
+    @customer.items << CustomerItem.new
   end
 
   # GET /customers/1/edit
@@ -108,7 +108,7 @@ class CustomersController < ApplicationController
 
   def print
     @customer = Customer.find(params[:id])
-    html = render_to_string :inline => @customer.get_print_template("test").template,
+    html = render_to_string :inline => @customer.get_print_template.template,
       :locals => {:invoice => @customer, :settings => Settings}
     respond_to do |format|
       format.html { render inline: html }
@@ -130,7 +130,7 @@ class CustomersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def customer_params
-      params.require(:customer).permit(:name, :identification, :email, :contact_person,
+      params.require(:customer).permit(:name, :identification, :email, :contact_person, :check_in, :check_out,
                                        :invoicing_address, :shipping_address, :active, tag_list: [])
     end
 

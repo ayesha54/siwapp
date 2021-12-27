@@ -31,6 +31,10 @@
           .dropdown-divider
           %a.dropdown-item{:href => inventories_path}=t("inventories")
           .dropdown-divider
+          %a.dropdown-item{:href => beds_path}=t("beds")
+          .dropdown-divider
+          %a.dropdown-item{:href => rooms_path}=t("rooms")
+          .dropdown-divider
           = link_to t("log out"), logout_path, method: "delete", class: "dropdown-item"
 
 

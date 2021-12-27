@@ -1,0 +1,19 @@
+.container
+  = form_for @bed, url: {action: :create} do |f|
+    %div
+      %h3 Add a Bed
+    %div
+      %p
+        = "<div>#{@bed.errors.full_messages.first}</div>".html_safe if @bed.errors.any?
+      %div.form-group
+        %label Bed Name
+        = f.text_field :name, class: "form-control"
+      %div.form-group
+        %label Price
+        = f.text_field :price, class: "form-control"
+      %div.form-group
+        %label Room
+        = f.collection_select :room_id, Room.all, :id, :name, {}, {multiple: false, class: 'form-control c-select'}
+    %div.form-group
+      = link_to 'Back', { controller: 'beds', action: 'index'}, class: "btn btn-light"
+      = f.submit 'Create Bed', class: "btn btn-primary"

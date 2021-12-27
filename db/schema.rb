@@ -10,16 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_23_140255) do
+ActiveRecord::Schema.define(version: 2021_12_27_061154) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "beds", force: :cascade do |t|
-    t.bigint "room_id"
     t.integer "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "price"
+    t.bigint "room_id"
     t.index ["room_id"], name: "index_beds_on_room_id"
   end
 
@@ -93,7 +94,9 @@ ActiveRecord::Schema.define(version: 2021_12_23_140255) do
     t.decimal "unitary_cost"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "customer_id"
     t.index ["bed_id"], name: "index_customer_items_on_bed_id"
+    t.index ["customer_id"], name: "index_customer_items_on_customer_id"
     t.index ["room_id"], name: "index_customer_items_on_room_id"
   end
 
@@ -278,6 +281,7 @@ ActiveRecord::Schema.define(version: 2021_12_23_140255) do
 
   add_foreign_key "beds", "rooms"
   add_foreign_key "customer_items", "beds"
+  add_foreign_key "customer_items", "customers"
   add_foreign_key "customer_items", "rooms"
   add_foreign_key "inventories", "categories"
 end

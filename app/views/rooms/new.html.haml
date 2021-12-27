@@ -1,0 +1,13 @@
+.container
+  = form_for @room, url: {action: :create} do |f|
+    %div
+      %h3 Add a Room
+    %div
+      %p
+        = "<div>#{@room.errors.full_messages.first}</div>".html_safe if @room.errors.any?
+      %div.form-group
+        %label Room Name
+        = f.text_field :name, class: "form-control"
+    %div.form-group
+      = link_to 'Back', { controller: 'rooms', action: 'index'}, class: "btn btn-light"
+      = f.submit 'Create Room', class: "btn btn-primary"

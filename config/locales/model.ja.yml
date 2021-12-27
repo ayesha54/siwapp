@@ -125,6 +125,8 @@ ja:
   hooks:                   フック
   categories:              Categories
   inventories:             Inventories
+  beds:                    Beds
+  rooms:                   Rooms
   identification:          ID
   invoice:                 請求書
   invoices:                請求書

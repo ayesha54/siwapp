@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   
   resources :categories
   resources :inventories
+  resources :beds
+  resources :rooms
   get 'invoice/update_inventory', to: "inventories#update_inventory"
 
   resources :commons do

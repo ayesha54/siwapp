@@ -4,11 +4,11 @@
       .col-xs-12.col-sm-6
         .form-group
           = f.label :check_in
-          = f.date_field :check_in, {class: 'form-control', value: Time.now.strftime('%Y-%m-%d')}
+          = f.date_field :check_in, {class: 'form-control', value: @customer.present? ? @customer.check_in.strftime('%Y-%m-%d') : Time.now.strftime('%Y-%m-%d')}
       .col-xs-12.col-sm-6
         .form-group
           = f.label :check_out
-          = f.date_field :check_out, {class: 'form-control', value: (Time.now + 5.days).strftime('%Y-%m-%d')}
+          = f.date_field :check_out, {class: 'form-control', value: @customer.present? ? @customer.check_out.strftime('%Y-%m-%d') : (Time.now + 5.days).strftime('%Y-%m-%d')}
 
     .row
       .col-xs-12.col-sm-6
@@ -19,3 +19,7 @@
         .form-group
           = f.label :print_template_id
           = f.collection_select :print_template_id, @templates, :id, :to_s, {include_blank: t("select template to print")}, {class: 'form-control c-select'}
+
+#js-items-table.invoice-table
+  = f.fields_for :items, include_id: false  do |item_form|
+    = render partial: 'item_fields', locals: {f: item_form}

@@ -90,8 +90,10 @@ class Customer < ActiveRecord::Base
       margin: {:top => "20mm", :bottom => 0, :left => 0, :right => 0})
   end
 
-  def get_print_template(name)
-    return self.print_template || Template.find_by(name: name) || Template.first
+  def get_print_template
+    return self.print_template ||
+      Template.find_by(print_default: true) ||
+      Template.first
   end
 
   # Returns the invoice template if set, and the default otherwise

@@ -1,0 +1,55 @@
+.invoice-row.invoice-item.js-item
+  .invoice-col.invoice-col--description.form-group
+    -# = f.label "Category"
+    -# = f.collection_select :category_id, Category.all, :id, :name, {include_blank: t("select category")}, {class: 'form-control c-select category-select'}
+
+  .invoice-col.invoice-col--description.form-group
+    -# = f.label "Inventory"
+    -# = f.collection_select :inventory_id, @inventories, :id, :name, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
+
+  .invoice-col.invoice-col--quantity.form-group
+    = f.label :quantity
+    = f.text_field :quantity, class: "form-control quantity", "data-role": "quantity"
+
+  .invoice-col.invoice-col--amount.form-group
+    = f.label :unitary_cost
+    = f.text_field :unitary_cost, class: "form-control unitary-cost", "data-role": "unitary-cost"
+
+  .invoice-col.invoice-col--discount.form-group
+    = f.label :discount
+    = f.text_field :discount, class: "form-control discount", "data-role": "discount"
+
+  .invoice-col.invoice-col--taxes.form-group
+    %label{"data-role": "taxes-selector-label"}
+      =t("taxes")
+      %span{data: {role: 'total'}}
+    = f.collection_select :tax_ids, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select', multiple: true, "data-role": "taxes-selector"}
+
+  .invoice-col.invoice-col--total.form-group
+    -# = f.label :net_amount
+    -# %p.form-control-static.js-net-amount= f.object.net_amount
+    -# = f.hidden_field :net_amount, {data: {role: 'net-amount'}}
+
+  -# = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
+  -#   = material_icon.delete
+  -#   %span Remove Line
+
+  -# = f.hidden_field :id
+
+:javascript
+  $(function() {
+    $(".inventory-select").each(function(e) {
+      if (window.location.href.includes("/edit")) return
+      var id_string = this.id;
+      var id = id_string.split("_")[3];
+      $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
+      $("#invoice_items_attributes_" + id + "_id").val(id);
+    });
+  });
+
+  $(".inventory-select").change(function() {
+    var id_string = this.id;
+    var id = id_string.split("_")[3];
+    $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
+    $("#invoice_items_attributes_" + id + "_id").val(id);
+  });

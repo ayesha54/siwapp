@@ -1,2 +1,2 @@
-class Room < ApplicationRecord
+class Room < ActiveRecord::Base
 end
