@@ -1,11 +1,11 @@
 .invoice-row.invoice-item.js-item
   .invoice-col.invoice-col--description.form-group
-    -# = f.label "Category"
-    -# = f.collection_select :category_id, Category.all, :id, :name, {include_blank: t("select category")}, {class: 'form-control c-select category-select'}
+    = f.label "Room"
+    = f.collection_select :room_id, Room.all, :id, :name, {include_blank: t("select room")}, {class: 'form-control c-select category-select'}
 
   .invoice-col.invoice-col--description.form-group
-    -# = f.label "Inventory"
-    -# = f.collection_select :inventory_id, @inventories, :id, :name, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
+    = f.label "Bed"
+    = f.collection_select :bed_id, @beds, :id, :name, {include_blank: t("select bed")}, {class: 'form-control c-select inventory-select'}
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
@@ -34,7 +34,7 @@
   -#   = material_icon.delete
   -#   %span Remove Line
 
-  -# = f.hidden_field :id
+  = f.hidden_field :id
 
 :javascript
   $(function() {

@@ -38,17 +38,19 @@ class CustomersController < ApplicationController
   def new
     @customer = Customer.new
     @rooms = Room.all
-    @bed = Bed.all
-    @customer.items << CustomerItem.new
+    @beds = Bed.all
+    # @customer.customer_items << CustomerItem.new
   end
 
   # GET /customers/1/edit
   def edit
+    @beds = Bed.all
   end
 
   # POST /customers
   # POST /customers.json
   def create
+    byebug
     @customer = Customer.new(customer_params)
     set_meta @customer
 
@@ -131,7 +133,7 @@ class CustomersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def customer_params
       params.require(:customer).permit(:name, :identification, :email, :contact_person, :check_in, :check_out,
-                                       :invoicing_address, :shipping_address, :active, tag_list: [])
+                                       :invoicing_address, :shipping_address, :active, tag_list: [], customer_items: [])
     end
 
     def set_tags

@@ -15,6 +15,7 @@ class Customer < ActiveRecord::Base
     :class_name => 'Template',
     :foreign_key => 'email_template_id',
     optional: true
+    has_many :custom_items, -> {order(id: :asc)}, autosave: true, dependent: :destroy
 
   # Validation
   validate :valid_customer_identification

@@ -34,7 +34,7 @@ class BedsController < ApplicationController
   # PUT method for updating in database a Bed based on id   
   def update   
     bed = Bed.find(params[:id])   
-    if bed.update_attributes(bed_params)   
+    if bed.update_attributes!(bed_params)   
       flash[:notice] = 'Bed updated!'   
       redirect_to beds_path
     else   
