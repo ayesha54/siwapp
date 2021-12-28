@@ -23,18 +23,18 @@
     %label{"data-role": "taxes-selector-label"}
       =t("taxes")
       %span{data: {role: 'total'}}
-    = f.collection_select :tax_ids, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select', multiple: true, "data-role": "taxes-selector"}
+    -# = f.collection_select :tax, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select', multiple: true, "data-role": "taxes-selector"}
 
   .invoice-col.invoice-col--total.form-group
-    -# = f.label :net_amount
-    -# %p.form-control-static.js-net-amount= f.object.net_amount
-    -# = f.hidden_field :net_amount, {data: {role: 'net-amount'}}
+    = f.label :net_amount
+    %p.form-control-static.js-net-amount= 0
+    = f.hidden_field :net_amount, {data: {role: 'net-amount'}}
 
   -# = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
   -#   = material_icon.delete
   -#   %span Remove Line
 
-  = f.hidden_field :id
+  -# = f.hidden_field
 
 :javascript
   $(function() {

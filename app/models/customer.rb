@@ -16,6 +16,9 @@ class Customer < ActiveRecord::Base
     :foreign_key => 'email_template_id',
     optional: true
     has_many :custom_items, -> {order(id: :asc)}, autosave: true, dependent: :destroy
+    accepts_nested_attributes_for :custom_items,
+    :reject_if => :all_blank,
+    :allow_destroy => true
 
   # Validation
   validate :valid_customer_identification

@@ -132,8 +132,10 @@ class CustomersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def customer_params
-      params.require(:customer).permit(:name, :identification, :email, :contact_person, :check_in, :check_out,
-                                       :invoicing_address, :shipping_address, :active, tag_list: [], customer_items: [])
+      params.require(:customer).permit(:name, :identification, :email, :contact_person, :check_in, :check_out, :email_template_id, :print_template_id,
+                                       :invoicing_address, :shipping_address, :active, tag_list: [],
+                                       customer_items: [:room_id, :bed_id, :quantity, :discount,
+                                          :description, :net_amount, :unitary_cost, :customer_id])
     end
 
     def set_tags
