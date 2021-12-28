@@ -56,6 +56,17 @@ class BedsController < ApplicationController
     end   
   end
 
+  def update_bed
+    logger.debug "abc #{params}"
+    @beds = Bed.where(room_id: params[:room_id])
+    @select_id = params[:select_id]
+    puts "============#{@select_id}"
+    respond_to do |format|
+      msg = { :beds => @beds }
+      format.json  { render :json => msg }
+    end
+  end
+
   # we used strong parameters for the validation of params   
   def bed_params   
     params.require(:bed).permit(:name, :price, :room_id)   

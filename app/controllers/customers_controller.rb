@@ -38,21 +38,54 @@ class CustomersController < ApplicationController
   def new
     @customer = Customer.new
     @rooms = Room.all
-    @beds = Bed.all
+    @beds = Bed.where(room_id: Room.first.id)
+    @cost = @beds.first.price
     # @customer.customer_items << CustomerItem.new
   end
 
   # GET /customers/1/edit
   def edit
-    @beds = Bed.all
+    @customer = Customer.where(id: params[:id]).first
+    ci = CustomerItem.where(customer_id: params[:id]).first
+    @rooms = Room.where(id: ci.room_id)
+    @beds = Bed.where(room_id: ci.room_id)
+    @cost = ci.net_amount
+    @quan = ci.quantity
+    render
+  end
+
+  def update_content
+    ci = CustomerItem.where(customer_id: params[:id]).first
+    respond_to do |format|
+      msg = { :beds => ci.bed_id, :rooms => ci.room_id }
+      format.json  { render :json => msg }
+    end
   end
 
   # POST /customers
   # POST /customers.json
   def create
-    byebug
-    @customer = Customer.new(customer_params)
-    set_meta @customer
+    @customer = Customer.where(name: params[:customer][:name]).first
+    unless @customer 
+      @customer = Customer.new
+      @customer.name = params[:customer][:name]
+      @customer.identification = params[:customer][:identification]
+      @customer.email = params[:customer][:email]
+      @customer.contact_person = params[:customer][:contact_person]
+      @customer.invoicing_address = params[:customer][:invoicing_address]
+      @customer.shipping_address = params[:customer][:shipping_address]
+      @customer.save!
+    end
+
+    @customeritem = CustomerItem.new
+    @customeritem.customer_id = @customer.id
+    @customeritem.room_id = params[:customer][:customer_items][:room_id]
+    @customeritem.bed_id = params[:customer][:customer_items][:bed_id].to_s.split("_")[0]
+    @customeritem.quantity = params[:customer][:customer_items][:quantity]
+    @customeritem.discount = params[:customer][:customer_items][:discount] || 0
+    @customeritem.unitary_cost = params[:customer][:customer_items][:unitary_cost]
+    @customeritem.net_amount = params[:customer][:customer_items][:net_amount]
+    @customeritem.save!
 
     respond_to do |format|
       if @customer.save

@@ -1,19 +1,19 @@
 .invoice-row.invoice-item.js-item
   .invoice-col.invoice-col--description.form-group
     = f.label "Room"
-    = f.collection_select :room_id, Room.all, :id, :name, {include_blank: t("select room")}, {class: 'form-control c-select category-select'}
+    = f.collection_select :room_id, Room.all, :id, :name, {include_blank: false}, {class: 'form-control c-select room-select'}
 
   .invoice-col.invoice-col--description.form-group
     = f.label "Bed"
-    = f.collection_select :bed_id, @beds, :id, :name, {include_blank: t("select bed")}, {class: 'form-control c-select inventory-select'}
+    = f.collection_select :bed_id, @beds, :id, :name, {include_blank: false}, {class: 'form-control c-select bed-select'}
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
-    = f.text_field :quantity, class: "form-control quantity", "data-role": "quantity"
+    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
-    = f.text_field :unitary_cost, class: "form-control unitary-cost", "data-role": "unitary-cost"
+    = f.text_field :unitary_cost, class: "form-control unitary-cost-bed", "data-role": "unitary-cost", value: @cost
 
   .invoice-col.invoice-col--discount.form-group
     = f.label :discount
@@ -27,8 +27,8 @@
 
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
-    %p.form-control-static.js-net-amount= 0
-    = f.hidden_field :net_amount, {data: {role: 'net-amount'}}
+    %p.form-control-static.js-net-amount-bed= @cost
+    = f.hidden_field :net_amount, data: {role: 'net-amount'}, class: "net-amount-bed", value: @cost
 
   -# = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
   -#   = material_icon.delete
@@ -52,4 +52,88 @@
     var id = id_string.split("_")[3];
     $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
     $("#invoice_items_attributes_" + id + "_id").val(id);
+  });
+
+  $(document).ready(function() {
+    let self = $(".room-select")
+    let id = $(self).val()
+    let parent = $(self).parent();
+    let grand = $(parent).parent();
+    let bed = $(grand).find(".invoice-col .bed-select")
+
+    if(window.location.href.includes("edit")) {
+      let href = window.location.pathname
+      let thenum = href.replace( /^\D+/g, '');
+      let id = parseInt(thenum)
+      $.ajax({
+      method: "GET",
+      url: "/customer/update_content",
+      data: { id: id }
+      })
+      .success(function( msg ) {
+        $(".room-select").val(msg.rooms)
+        $(".bed-select").val(msg.beds)
+      });
+
+    } else {
+      $.ajax({
+        method: "GET",
+        url: "/bed/update_bed",
+        data: { room_id: id }
+      })
+      .success(function( msg ) {
+        json = JSON.stringify(msg)
+        $(bed).find('option').remove()
+        for (let i = 0; i < msg.beds.length; i++) {
+          let tmp = msg.beds[i].id + "_" + msg.beds[i].price
+          $(bed).append(new Option(msg.beds[i].name, tmp));
+        }
+        changeNet(self)
+      });
+    }
+  });
+
+  $(".room-select").change(function() {
+    let self = this
+    let id = $(this).val()
+    let parent = $(this).parent();
+    let grand = $(parent).parent();
+    let bed = $(grand).find(".invoice-col .bed-select")
+    $.ajax({
+      method: "GET",
+      url: "/bed/update_bed",
+      data: { room_id: id }
+    })
+    .success(function( msg ) {
+      json = JSON.stringify(msg)
+      $(bed).find('option').remove()
+      for (let i = 0; i < msg.beds.length; i++) {
+        let tmp = msg.beds[i].id + "_" + msg.beds[i].price
+        $(bed).append(new Option(msg.beds[i].name, tmp));
+      }
+      changeNet(self)
+    });
+  });
+
+  $(".bed-select").change(function() {
+    changeNet(this)
+  })
+
+  function changeNet(e) {
+    let parent = $(e).parent();
+    let grand = $(parent).parent();
+    let bed = $(grand).find(".invoice-col .bed-select")
+    let quan = $(grand).find(".invoice-col .quantity-bed")
+    let cost = $(grand).find(".invoice-col .unitary-cost-bed")
+    let net_text = $(grand).find(".invoice-col .js-net-amount-bed")
+    let net = $(grand).find(".invoice-col .net-amount-bed")
+    let x = $(bed).val().split('_')[1]
+    $(cost).val(x)
+    let t = parseInt(x) * parseInt($(quan).val())
+    $(net_text).text(t)
+    $(net).val(t)
+  }
+
+  $(".quantity-bed").change(function() {
+    changeNet(this)
   });

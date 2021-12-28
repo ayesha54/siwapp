@@ -21,6 +21,8 @@ Rails.application.routes.draw do
   resources :beds
   resources :rooms
   get 'invoice/update_inventory', to: "inventories#update_inventory"
+  get '/bed/update_bed', to: "beds#update_bed"
+  get '/customer/update_content', to: "customers#update_content"
 
   resources :commons do
     post 'select_print_template', on: :member
