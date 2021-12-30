@@ -7,6 +7,7 @@ class Customer < ActiveRecord::Base
   has_many :invoices
   has_many :estimates
   has_many :recurring_invoices
+  has_many :customer_items
   belongs_to :print_template,
     :class_name => 'Template',
     :foreign_key => 'print_template_id',

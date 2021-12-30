@@ -57,7 +57,7 @@ class CustomersController < ApplicationController
   def update_content
     ci = CustomerItem.where(customer_id: params[:id]).first
     respond_to do |format|
-      msg = { :beds => ci.bed_id, :rooms => ci.room_id }
+      msg = { :beds => ci.bed_id, :rooms => ci.room_id, :tax => ci.tax }
       format.json  { render :json => msg }
     end
   end
@@ -65,35 +65,36 @@ class CustomersController < ApplicationController
   # POST /customers
   # POST /customers.json
   def create
-    @customer = Customer.where(name: params[:customer][:name]).first
-    unless @customer 
-      @customer = Customer.new
-      @customer.name = params[:customer][:name]
-      @customer.identification = params[:customer][:identification]
-      @customer.email = params[:customer][:email]
-      @customer.contact_person = params[:customer][:contact_person]
-      @customer.invoicing_address = params[:customer][:invoicing_address]
-      @customer.shipping_address = params[:customer][:shipping_address]
-      @customer.save!
-    end
+    # @customer = Customer.where(name: params[:customer][:name]).first
+    # unless @customer 
+    #   @customer = Customer.new
+    #   @customer.name = params[:customer][:name]
+    #   @customer.identification = params[:customer][:identification]
+    #   @customer.email = params[:customer][:email]
+    #   @customer.contact_person = params[:customer][:contact_person]
+    #   @customer.invoicing_address = params[:customer][:invoicing_address]
+    #   @customer.shipping_address = params[:customer][:shipping_address]
+    #   @customer.save!
+    # end
 
-    @customeritem = CustomerItem.new
-    @customeritem.customer_id = @customer.id
-    @customeritem.room_id = params[:customer][:customer_items][:room_id]
-    @customeritem.bed_id = params[:customer][:customer_items][:bed_id].to_s.split("_")[0]
-    @customeritem.quantity = params[:customer][:customer_items][:quantity]
-    @customeritem.discount = params[:customer][:customer_items][:discount] || 0
-    @customeritem.unitary_cost = params[:customer][:customer_items][:unitary_cost]
-    @customeritem.net_amount = params[:customer][:customer_items][:net_amount]
-    @customeritem.save!
+    # @customeritem = CustomerItem.new
+    # @customeritem.customer_id = @customer.id
+    # @customeritem.room_id = params[:customer][:customer_items][:room_id]
+    # @customeritem.bed_id = params[:customer][:customer_items][:bed_id].to_s.split("_")[0]
+    # @customeritem.quantity = params[:customer][:customer_items][:quantity]
+    # @customeritem.discount = params[:customer][:customer_items][:discount] || 0
+    # @customeritem.unitary_cost = params[:customer][:customer_items][:unitary_cost]
+    # @customeritem.net_amount = params[:customer][:customer_items][:net_amount]
+    # @customeritem.tax = params[:customer][:customer_items][:tax][1].to_s.to_i
+    # @customeritem.save!
 
-    respond_to do |format|
-      if @customer.save
-        format.html { redirect_to redirect_address("customers"), notice: 'Customer was successfully created.' }
-      else
-        format.html { render :new }
-      end
-    end
+    # respond_to do |format|
+    #   if @customer.save
+    #     format.html { redirect_to redirect_address("customers"), notice: 'Customer was successfully created.' }
+    #   else
+    #     format.html { render :new }
+    #   end
+    # end
   end
 
   # PATCH/PUT /customers/1

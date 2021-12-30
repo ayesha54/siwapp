@@ -20,10 +20,8 @@
     = f.text_field :discount, class: "form-control discount", "data-role": "discount"
 
   .invoice-col.invoice-col--taxes.form-group
-    %label{"data-role": "taxes-selector-label"}
-      =t("taxes")
-      %span{data: {role: 'total'}}
-    -# = f.collection_select :tax, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select', multiple: true, "data-role": "taxes-selector"}
+    = f.label "Tax"
+    = f.collection_select :tax, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select tax-select', multiple: true, "data-role": "taxes-selector"}
 
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
@@ -73,6 +71,8 @@
       .success(function( msg ) {
         $(".room-select").val(msg.rooms)
         $(".bed-select").val(msg.beds)
+        $(".tax-select").val(msg.tax)
+        $(".tax-select").trigger('change')
       });
 
     } else {
