@@ -28,9 +28,9 @@
     %p.form-control-static.js-net-amount-bed= @cost
     = f.hidden_field :net_amount, data: {role: 'net-amount'}, class: "net-amount-bed", value: @cost
 
-  -# = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
-  -#   = material_icon.delete
-  -#   %span Remove Line
+  = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
+    = material_icon.delete
+    %span Remove Line
 
   -# = f.hidden_field
 
@@ -50,47 +50,6 @@
     var id = id_string.split("_")[3];
     $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
     $("#invoice_items_attributes_" + id + "_id").val(id);
-  });
-
-  $(document).ready(function() {
-    let self = $(".room-select")
-    let id = $(self).val()
-    let parent = $(self).parent();
-    let grand = $(parent).parent();
-    let bed = $(grand).find(".invoice-col .bed-select")
-
-    if(window.location.href.includes("edit")) {
-      let href = window.location.pathname
-      let thenum = href.replace( /^\D+/g, '');
-      let id = parseInt(thenum)
-      $.ajax({
-      method: "GET",
-      url: "/customer/update_content",
-      data: { id: id }
-      })
-      .success(function( msg ) {
-        $(".room-select").val(msg.rooms)
-        $(".bed-select").val(msg.beds)
-        $(".tax-select").val(msg.tax)
-        $(".tax-select").trigger('change')
-      });
-
-    } else {
-      $.ajax({
-        method: "GET",
-        url: "/bed/update_bed",
-        data: { room_id: id }
-      })
-      .success(function( msg ) {
-        json = JSON.stringify(msg)
-        $(bed).find('option').remove()
-        for (let i = 0; i < msg.beds.length; i++) {
-          let tmp = msg.beds[i].id + "_" + msg.beds[i].price
-          $(bed).append(new Option(msg.beds[i].name, tmp));
-        }
-        changeNet(self)
-      });
-    }
   });
 
   $(".room-select").change(function() {

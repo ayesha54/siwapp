@@ -20,6 +20,9 @@ class Customer < ActiveRecord::Base
     accepts_nested_attributes_for :custom_items,
     :reject_if => :all_blank,
     :allow_destroy => true
+  accepts_nested_attributes_for :customer_items,
+    :reject_if => :all_blank,
+    :allow_destroy => true
 
   # Validation
   validate :valid_customer_identification
