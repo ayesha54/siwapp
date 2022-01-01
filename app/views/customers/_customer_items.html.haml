@@ -48,6 +48,7 @@
         for(let i = 0; i < msg.data.length; i++) {
           $($(".quantity-bed")[i]).val(msg.data[i].quantity)
           $($(".js-net-amount-bed")[i]).text(msg.data[i].net_amount)
+          $($(".net-amount-bed")[i]).val(msg.data[i].net_amount)
           $($(".unitary-cost-bed")[i]).val(msg.data[i].unitary_cost)
           $($(".tax-select")[i]).val(msg.data[i].tax)
           $($(".tax-select")[i]).trigger('change')

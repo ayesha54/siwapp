@@ -61,6 +61,14 @@ class CustomersController < ApplicationController
     end
   end
 
+  def update_cost
+    b = Bed.where(id: params[:bed_id]).first
+    respond_to do |format|
+      msg = { :data => b.price }
+      format.json  { render :json => msg }
+    end
+  end
+
   # POST /customers
   # POST /customers.json
   def create
@@ -104,6 +112,34 @@ class CustomersController < ApplicationController
   # PATCH/PUT /customers/1
   # PATCH/PUT /customers/1.json
   def update
+    @customer = Customer.where(id: params[:id]).first
+    @customer.name = params[:customer][:name]
+    @customer.identification = params[:customer][:identification]
+    @customer.email = params[:customer][:email]
+    @customer.contact_person = params[:customer][:contact_person]
+    @customer.invoicing_address = params[:customer][:invoicing_address]
+    @customer.shipping_address = params[:customer][:shipping_address]
+    @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
+    @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
+    @customer.save!
+
+    CustomerItem.where(customer_id: params[:id]).destroy_all
+
+    items = params[:customer][:customer_items_attributes]
+    tmparr = items.to_s.split('}, "')
+    tmparr.each do |str|
+      id = str.to_i
+      @customeritem = CustomerItem.new
+      @customeritem.customer_id = @customer.id
+      @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
+      @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+      @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
+      @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
+      @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+      @customeritem.tax = params[:customer][:customer_items_attributes][id.to_s][:tax][1].to_s.to_i
+      @customeritem.save!
+    end
     respond_to do |format|
       if @customer.update(customer_params)
         set_meta @customer

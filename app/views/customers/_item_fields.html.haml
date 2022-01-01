@@ -67,28 +67,36 @@
       json = JSON.stringify(msg)
       $(bed).find('option').remove()
       for (let i = 0; i < msg.beds.length; i++) {
-        let tmp = msg.beds[i].id + "_" + msg.beds[i].price
-        $(bed).append(new Option(msg.beds[i].name, tmp));
+        $(bed).append(new Option(msg.beds[i].name, msg.beds[i].id));
       }
+      $(bed).trigger('change')
       changeNet(self)
     });
   });
 
   $(".bed-select").change(function() {
-    changeNet(this)
+    let id = $(this).val();
+    let self = this;
+    $.ajax({
+      method: "GET",
+      url: "/customer/update_cost",
+      data: { bed_id: id }
+    })
+    .success(function( msg ) {
+      let parent = $(self).closest(".invoice-row")
+      let cost = $(parent).find(".invoice-col .unitary-cost-bed")
+      $(cost).val(msg.data)
+      changeNet(self)
+    });
   })
 
   function changeNet(e) {
-    let parent = $(e).parent();
-    let grand = $(parent).parent();
-    let bed = $(grand).find(".invoice-col .bed-select")
-    let quan = $(grand).find(".invoice-col .quantity-bed")
-    let cost = $(grand).find(".invoice-col .unitary-cost-bed")
-    let net_text = $(grand).find(".invoice-col .js-net-amount-bed")
-    let net = $(grand).find(".invoice-col .net-amount-bed")
-    let x = $(bed).val().split('_')[1]
-    $(cost).val(x)
-    let t = parseInt(x) * parseInt($(quan).val())
+    let parent = $(e).closest(".invoice-row")
+    let cost = $(parent).find(".invoice-col .unitary-cost-bed")
+    let quan = $(parent).find(".invoice-col .quantity-bed")
+    let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
+    let net = $(parent).find(".invoice-col .net-amount-bed")
+    let t = parseInt($(cost).val()) * parseInt($(quan).val())
     $(net_text).text(t)
     $(net).val(t)
   }
