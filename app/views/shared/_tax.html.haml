@@ -1,0 +1,2 @@
+.form-group
+    = f.collection_select :tax, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select tax-select', multiple: true, "data-role": "taxes-selector"}

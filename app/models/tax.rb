@@ -1,6 +1,6 @@
 class Tax < ActiveRecord::Base
   acts_as_paranoid
-  has_and_belongs_to_many :items, touch: true
+  has_many :customer_tax
   before_destroy :check_is_not_used
 
   validates :name, presence: true

@@ -1,0 +1,3 @@
+= f.fields_for :customer_tax, include_id: false  do |item_form|
+    = render partial: 'shared/tax', locals: {f: item_form}
+    

@@ -55,8 +55,9 @@ class CustomersController < ApplicationController
 
   def update_content
     ci = CustomerItem.where(customer_id: params[:id])
+    tax = CustomerTax.where(customer_id: params[:id])
     respond_to do |format|
-      msg = { :data => ci }
+      msg = { :data => ci, :tax => tax}
       format.json  { render :json => msg }
     end
   end
@@ -72,6 +73,7 @@ class CustomersController < ApplicationController
   # POST /customers
   # POST /customers.json
   def create
+
     @customer = Customer.where(name: params[:customer][:name]).first
     unless @customer 
       @customer = Customer.new
@@ -82,6 +84,15 @@ class CustomersController < ApplicationController
       @customer.invoicing_address = params[:customer][:invoicing_address]
       @customer.shipping_address = params[:customer][:shipping_address]
       @customer.save!
+    end
+
+    params[:customer][:customer_tax][:tax].each do |val|
+      if val.present?
+        tax = CustomerTax.new
+        tax.customer_id = @customer.id
+        tax.tax_id = val.to_i
+        tax.save!
+      end
     end
 
     items = params[:customer][:customer_items_attributes]
@@ -96,7 +107,6 @@ class CustomersController < ApplicationController
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
-      @customeritem.tax = params[:customer][:customer_items_attributes][id.to_s][:tax][1].to_s.to_i
       @customeritem.save!
     end
 
