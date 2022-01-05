@@ -5,6 +5,7 @@ class CustomersController < ApplicationController
   before_action :set_type
   before_action :set_customer, only: [:show, :edit, :update, :destroy]
   before_action :set_tags, only: [:index, :new, :create, :edit, :update, :destroy]
+  before_action :template, only: [:new, :edit]
 
   # GET /customers
   def index
@@ -36,17 +37,68 @@ class CustomersController < ApplicationController
   # GET /customers/new
   def new
     @customer = Customer.new
+    @rooms = Room.all
+    @beds = Bed.where(room_id: Room.first.id)
+    @cost = @beds.first.price
+    @customer.customer_items << CustomerItem.new(customer: @customer)
+    render
   end
 
   # GET /customers/1/edit
   def edit
+    @customer = Customer.where(id: params[:id]).first
+    ci = CustomerItem.where(customer_id: params[:id])
+    @rooms = Room.where(id: ci.pluck(:room_id))
+    @beds = Bed.where(room_id: ci.pluck(:room_id))
+    render
+  end
+
+  def update_content
+    ci = CustomerItem.where(customer_id: params[:id])
+    respond_to do |format|
+      msg = { :data => ci }
+      format.json  { render :json => msg }
+    end
+  end
+
+  def update_cost
+    b = Bed.where(id: params[:bed_id]).first
+    respond_to do |format|
+      msg = { :data => b.price }
+      format.json  { render :json => msg }
+    end
   end
 
   # POST /customers
   # POST /customers.json
   def create
-    @customer = Customer.new(customer_params)
-    set_meta @customer
+    @customer = Customer.where(name: params[:customer][:name]).first
+    unless @customer 
+      @customer = Customer.new
+      @customer.name = params[:customer][:name]
+      @customer.identification = params[:customer][:identification]
+      @customer.email = params[:customer][:email]
+      @customer.contact_person = params[:customer][:contact_person]
+      @customer.invoicing_address = params[:customer][:invoicing_address]
+      @customer.shipping_address = params[:customer][:shipping_address]
+      @customer.save!
+    end
+
+    items = params[:customer][:customer_items_attributes]
+    tmparr = items.to_s.split('}, "')
+    tmparr.each do |str|
+      id = str.to_i
+      @customeritem = CustomerItem.new
+      @customeritem.customer_id = @customer.id
+      @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
+      @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+      @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
+      @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
+      @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+      @customeritem.tax = params[:customer][:customer_items_attributes][id.to_s][:tax][1].to_s.to_i
+      @customeritem.save!
+    end
 
     respond_to do |format|
       if @customer.save
@@ -60,6 +112,34 @@ class CustomersController < ApplicationController
   # PATCH/PUT /customers/1
   # PATCH/PUT /customers/1.json
   def update
+    @customer = Customer.where(id: params[:id]).first
+    @customer.name = params[:customer][:name]
+    @customer.identification = params[:customer][:identification]
+    @customer.email = params[:customer][:email]
+    @customer.contact_person = params[:customer][:contact_person]
+    @customer.invoicing_address = params[:customer][:invoicing_address]
+    @customer.shipping_address = params[:customer][:shipping_address]
+    @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
+    @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
+    @customer.save!
+
+    CustomerItem.where(customer_id: params[:id]).destroy_all
+
+    items = params[:customer][:customer_items_attributes]
+    tmparr = items.to_s.split('}, "')
+    tmparr.each do |str|
+      id = str.to_i
+      @customeritem = CustomerItem.new
+      @customeritem.customer_id = @customer.id
+      @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
+      @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+      @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
+      @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
+      @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+      @customeritem.tax = params[:customer][:customer_items_attributes][id.to_s][:tax][1].to_s.to_i
+      @customeritem.save!
+    end
     respond_to do |format|
       if @customer.update(customer_params)
         set_meta @customer
@@ -104,7 +184,7 @@ class CustomersController < ApplicationController
 
   def print
     @customer = Customer.find(params[:id])
-    html = render_to_string :inline => @customer.get_print_template("test").template,
+    html = render_to_string :inline => @customer.get_print_template.template,
       :locals => {:invoice => @customer, :settings => Settings}
     respond_to do |format|
       format.html { render inline: html }
@@ -126,11 +206,17 @@ class CustomersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def customer_params
-      params.require(:customer).permit(:name, :identification, :email, :contact_person,
-                                       :invoicing_address, :shipping_address, :active, tag_list: [])
+      params.require(:customer).permit(:name, :identification, :email, :contact_person, :check_in, :check_out, :email_template_id, :print_template_id,
+                                       :invoicing_address, :shipping_address, :active, tag_list: [],
+                                       customer_items: [:room_id, :bed_id, :quantity, :discount,
+                                          :description, :net_amount, :unitary_cost, :customer_id, :_destroy])
     end
 
     def set_tags
       @tags = tags_for('Customer')
+    end
+
+    def template
+      @templates = Template.all
     end
 end

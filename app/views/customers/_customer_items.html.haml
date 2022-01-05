@@ -1,0 +1,79 @@
+.row
+  .col-xs-12.col-xl-8
+    .row
+      .col-xs-12.col-sm-6
+        .form-group
+          = f.label :check_in
+          = f.date_field :check_in, {class: 'form-control', value: @customer.check_in.present? ? @customer.check_in.strftime('%Y-%m-%d') : Time.now.strftime('%Y-%m-%d')}
+      .col-xs-12.col-sm-6
+        .form-group
+          = f.label :check_out
+          = f.date_field :check_out, {class: 'form-control', value: @customer.check_out.present? ? @customer.check_out.strftime('%Y-%m-%d') : (Time.now + 5.days).strftime('%Y-%m-%d')}
+
+    .row
+      .col-xs-12.col-sm-6
+        .form-group
+          = f.label :email_template_id
+          = f.collection_select :email_template_id, @templates, :id, :to_s, {include_blank: t("select template for e-mail")}, {class: 'form-control c-select'}
+      .col-xs-12.col-sm-6
+        .form-group
+          = f.label :print_template_id
+          = f.collection_select :print_template_id, @templates, :id, :to_s, {include_blank: t("select template to print")}, {class: 'form-control c-select'}
+
+#js-items-table.invoice-table
+  = f.fields_for :customer_items, include_id: false  do |item_form|
+    = render partial: 'item_fields', locals: {f: item_form}
+.row
+  .col-xs-12.col-sm-6.col-md-7.col-lg-8
+    .invoice-table-actions
+      = link_to_add_association t("add line"), f, :customer_items,       |
+        'data-association-insertion-node' => '#js-items-table', |
+        'data-association-insertion-method' => 'append',        |
+        :partial => 'item_fields',                       |
+        :class => 'btn btn-secondary'                           |
+:javascript
+  $(document).ready(function() {
+
+    if(window.location.href.includes("edit")) {
+      let href = window.location.pathname
+      let thenum = href.replace( /^\D+/g, '');
+      let id = parseInt(thenum)
+      $.ajax({
+        method: "GET",
+        url: "/customer/update_content",
+        data: { id: id }
+        })
+      .success(function( msg ) {
+        console.log(msg.data)
+        for(let i = 0; i < msg.data.length; i++) {
+          $($(".quantity-bed")[i]).val(msg.data[i].quantity)
+          $($(".js-net-amount-bed")[i]).text(msg.data[i].net_amount)
+          $($(".net-amount-bed")[i]).val(msg.data[i].net_amount)
+          $($(".unitary-cost-bed")[i]).val(msg.data[i].unitary_cost)
+          $($(".tax-select")[i]).val(msg.data[i].tax)
+          $($(".tax-select")[i]).trigger('change')
+        }
+      });
+
+    } else {
+      let self = $(".room-select")
+      let id = $(self).val()
+      let parent = $(self).parent();
+      let grand = $(parent).parent();
+      let bed = $(grand).find(".invoice-col .bed-select")
+      $.ajax({
+        method: "GET",
+        url: "/bed/update_bed",
+        data: { room_id: id }
+      })
+      .success(function( msg ) {
+        json = JSON.stringify(msg)
+        $(bed).find('option').remove()
+        for (let i = 0; i < msg.beds.length; i++) {
+          let tmp = msg.beds[i].id + "_" + msg.beds[i].price
+          $(bed).append(new Option(msg.beds[i].name, tmp));
+        }
+        changeNet(self)
+      });
+    }
+  });

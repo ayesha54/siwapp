@@ -52,6 +52,8 @@ en:
   hooks:                 Hooks
   categories:            Categories
   inventories:           Inventories
+  beds:                  Beds
+  rooms:                 Rooms
   identification:        Identification
   invoice:               Invoice
   invoices:              Invoices

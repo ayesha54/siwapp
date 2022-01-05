@@ -7,6 +7,7 @@ class Customer < ActiveRecord::Base
   has_many :invoices
   has_many :estimates
   has_many :recurring_invoices
+  has_many :customer_items
   belongs_to :print_template,
     :class_name => 'Template',
     :foreign_key => 'print_template_id',
@@ -15,6 +16,13 @@ class Customer < ActiveRecord::Base
     :class_name => 'Template',
     :foreign_key => 'email_template_id',
     optional: true
+    has_many :custom_items, -> {order(id: :asc)}, autosave: true, dependent: :destroy
+    accepts_nested_attributes_for :custom_items,
+    :reject_if => :all_blank,
+    :allow_destroy => true
+  accepts_nested_attributes_for :customer_items,
+    :reject_if => :all_blank,
+    :allow_destroy => true
 
   # Validation
   validate :valid_customer_identification
@@ -90,8 +98,10 @@ class Customer < ActiveRecord::Base
       margin: {:top => "20mm", :bottom => 0, :left => 0, :right => 0})
   end
 
-  def get_print_template(name)
-    return self.print_template || Template.find_by(name: name) || Template.first
+  def get_print_template
+    return self.print_template ||
+      Template.find_by(print_default: true) ||
+      Template.first
   end
 
   # Returns the invoice template if set, and the default otherwise

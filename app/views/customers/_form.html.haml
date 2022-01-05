@@ -22,6 +22,10 @@
     = render partial: 'customers/form_fields', locals: {f: f}
 
   %fieldset.m-b-2
+    %legend.m-b-1 Customer Details
+    = render partial: 'customer_items', locals: {f: f}
+
+  %fieldset.m-b-2
     %legend.m-b-1 Tags
     = render partial: 'shared/tagging_field', locals: {f: f, instance: @customer}
 

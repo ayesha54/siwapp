@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_13_171939) do
+ActiveRecord::Schema.define(version: 2021_12_27_061154) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "beds", force: :cascade do |t|
+    t.integer "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "price"
+    t.bigint "room_id"
+    t.index ["room_id"], name: "index_beds_on_room_id"
+  end
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
@@ -60,8 +69,6 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.integer "email_template_id"
     t.integer "deleted_number"
     t.string "currency", limit: 3
-    t.integer "category_id"
-    t.integer "inventory_id"
     t.index ["contact_person"], name: "cntct_idx"
     t.index ["customer_id"], name: "customer_id_idx"
     t.index ["deleted_at"], name: "index_commons_on_deleted_at"
@@ -76,6 +83,23 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.index ["type"], name: "type_and_status_idx"
   end
 
+  create_table "customer_items", force: :cascade do |t|
+    t.bigint "room_id"
+    t.bigint "bed_id"
+    t.decimal "quantity"
+    t.decimal "discount"
+    t.string "description"
+    t.float "net_amount"
+    t.integer "tax"
+    t.decimal "unitary_cost"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "customer_id"
+    t.index ["bed_id"], name: "index_customer_items_on_bed_id"
+    t.index ["customer_id"], name: "index_customer_items_on_customer_id"
+    t.index ["room_id"], name: "index_customer_items_on_room_id"
+  end
+
   create_table "customers", force: :cascade do |t|
     t.string "name", limit: 100
     t.string "name_slug", limit: 100
@@ -87,6 +111,10 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.datetime "deleted_at"
     t.text "meta_attributes"
     t.boolean "active", default: true
+    t.date "check_in"
+    t.date "check_out"
+    t.integer "print_template_id"
+    t.integer "email_template_id"
     t.index ["deleted_at"], name: "index_customers_on_deleted_at"
     t.index ["name_slug"], name: "cstm_slug_idx", unique: true
   end
@@ -110,6 +138,7 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.datetime "deleted_at"
     t.integer "category_id"
     t.integer "inventory_id"
+    t.float "net_amount", default: 0.0
     t.index ["common_id"], name: "common_id_idx"
     t.index ["deleted_at"], name: "index_items_on_deleted_at"
     t.index ["description"], name: "desc_idx"
@@ -124,6 +153,15 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
   create_table "items_taxes", id: false, force: :cascade do |t|
     t.integer "item_id", null: false
     t.integer "tax_id", null: false
+  end
+
+  create_table "line_invoices", force: :cascade do |t|
+    t.bigint "commons_id"
+    t.integer "inventory"
+    t.integer "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["commons_id"], name: "index_line_invoices_on_commons_id"
   end
 
   create_table "payments", force: :cascade do |t|
@@ -146,6 +184,12 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+  end
+
+  create_table "rooms", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "series", force: :cascade do |t|
@@ -235,5 +279,9 @@ ActiveRecord::Schema.define(version: 2021_12_13_171939) do
     t.index ["event"], name: "index_webhook_logs_on_event"
   end
 
+  add_foreign_key "beds", "rooms"
+  add_foreign_key "customer_items", "beds"
+  add_foreign_key "customer_items", "customers"
+  add_foreign_key "customer_items", "rooms"
   add_foreign_key "inventories", "categories"
 end
