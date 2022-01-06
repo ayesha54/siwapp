@@ -2,7 +2,7 @@ class CustomerMailer < ApplicationMailer
   add_template_helper TemplatesHelper
   add_template_helper ApplicationHelper
 
-  def email_customer(customer, name)
+  def email_customer(customer)
     @customer = customer
 
     # Getting email template

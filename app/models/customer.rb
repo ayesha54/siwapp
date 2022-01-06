@@ -78,6 +78,32 @@ class Customer < ActiveRecord::Base
     end
   end
 
+  def have_items_discount?
+    customer_items.each do |item|
+      if item.discount && item.discount > 0
+        return true
+      end
+    end
+    false
+  end
+
+  def net_amount
+    total = 0
+    customer_items.each do |item|
+      total += item.net_amount
+    end
+    return total
+  end
+
+  def gross_amount
+    total = 0
+    total += net_amount
+    Tax.where(id: customer_tax.pluck(:tax_id)).each do |tax|
+      total += tax.value
+    end
+    return total
+  end
+  
   def to_jbuilder
     Jbuilder.new do |json|
       json.(self, *(attribute_names - ["name_slug", "deleted_at"]))
