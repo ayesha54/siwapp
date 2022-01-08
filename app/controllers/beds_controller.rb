@@ -19,7 +19,7 @@ class BedsController < ApplicationController
     @bed = Bed.new(bed_params)   
     if @bed.save!
       flash[:notice] = 'Bed added!'   
-      redirect_to bed_path
+      redirect_to beds_path
     else   
       flash[:error] = 'Failed to edit Bed!'   
       render :new   

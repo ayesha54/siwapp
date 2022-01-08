@@ -21,9 +21,16 @@ Settings.currency = "usd"
 Template.create(name: "Print Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'print_default.html.erb')).strip(),
                 print_default: true)
+Template.create(name: "Print Customer",
+                template: File.read(Rails.root.join('db', 'fixtures', 'print_customer.html.erb')).strip(),
+                print_default: false)
 
 Template.create(name: "Email Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_default.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= invoice %>",
                 email_default: true)
+Template.create(name: "Email Customer",
+                template: File.read(Rails.root.join('db', 'fixtures', 'email_customer.html.erb')).strip(),
+                subject: "Payment Confirmation: <%= customer %>",
+                email_default: false)
 User.create(name: "demo",email: "demo@example.com", password: "secret_password")

@@ -19,10 +19,6 @@
     = f.label :discount
     = f.text_field :discount, class: "form-control discount", "data-role": "discount"
 
-  .invoice-col.invoice-col--taxes.form-group
-    = f.label "Tax"
-    = f.collection_select :tax, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select tax-select', multiple: true, "data-role": "taxes-selector"}
-
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
     %p.form-control-static.js-net-amount-bed= @cost
@@ -35,23 +31,6 @@
   -# = f.hidden_field
 
 :javascript
-  $(function() {
-    $(".inventory-select").each(function(e) {
-      if (window.location.href.includes("/edit")) return
-      var id_string = this.id;
-      var id = id_string.split("_")[3];
-      $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
-      $("#invoice_items_attributes_" + id + "_id").val(id);
-    });
-  });
-
-  $(".inventory-select").change(function() {
-    var id_string = this.id;
-    var id = id_string.split("_")[3];
-    $("#invoice_items_attributes_" + id + "_unitary_cost").val(this.value.split("_")[0]);
-    $("#invoice_items_attributes_" + id + "_id").val(id);
-  });
-
   $(".room-select").change(function() {
     let self = this
     let id = $(this).val()

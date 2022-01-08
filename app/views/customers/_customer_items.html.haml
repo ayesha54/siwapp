@@ -44,15 +44,19 @@
         data: { id: id }
         })
       .success(function( msg ) {
-        console.log(msg.data)
         for(let i = 0; i < msg.data.length; i++) {
           $($(".quantity-bed")[i]).val(msg.data[i].quantity)
           $($(".js-net-amount-bed")[i]).text(msg.data[i].net_amount)
           $($(".net-amount-bed")[i]).val(msg.data[i].net_amount)
           $($(".unitary-cost-bed")[i]).val(msg.data[i].unitary_cost)
-          $($(".tax-select")[i]).val(msg.data[i].tax)
-          $($(".tax-select")[i]).trigger('change')
         }
+
+        let valarr = []
+        for(let i = 0; i < msg.tax.length; i++) {
+          valarr.push(msg.tax[i].tax_id)
+        }
+        $($(".tax-select")[0]).val(valarr)
+        $($(".tax-select")[0]).trigger('change')
       });
 
     } else {
@@ -70,8 +74,7 @@
         json = JSON.stringify(msg)
         $(bed).find('option').remove()
         for (let i = 0; i < msg.beds.length; i++) {
-          let tmp = msg.beds[i].id + "_" + msg.beds[i].price
-          $(bed).append(new Option(msg.beds[i].name, tmp));
+          $(bed).append(new Option(msg.beds[i].name, msg.beds[i].id));
         }
         changeNet(self)
       });
