@@ -20,17 +20,20 @@ Settings.currency = "usd"
 
 Template.create(name: "Print Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'print_default.html.erb')).strip(),
-                print_default: true)
+                print_default: true, template_type: "invoice")
 Template.create(name: "Print Customer",
                 template: File.read(Rails.root.join('db', 'fixtures', 'print_customer.html.erb')).strip(),
-                print_default: false)
+                print_default: false, template_type: "customer")
 
 Template.create(name: "Email Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_default.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= invoice %>",
-                email_default: true)
+                email_default: true, template_type: "invoice")
 Template.create(name: "Email Customer",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_customer.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= customer %>",
-                email_default: false)
+                email_default: false, template_type: "customer")
 User.create(name: "demo",email: "demo@example.com", password: "secret_password")
+Meal.create(name: "BB")
+Meal.create(name: "HB")
+Meal.create(name: "FB")
