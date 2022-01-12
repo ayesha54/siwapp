@@ -9,6 +9,7 @@ class Customer < ActiveRecord::Base
   has_many :recurring_invoices
   has_many :customer_items
   has_many :customer_tax
+  has_many :payments_customer
   belongs_to :print_template,
     :class_name => 'Template',
     :foreign_key => 'print_template_id',
@@ -24,10 +25,13 @@ class Customer < ActiveRecord::Base
   accepts_nested_attributes_for :customer_items,
     :reject_if => :all_blank,
     :allow_destroy => true
+  accepts_nested_attributes_for :payments_customer,
+    :reject_if => :all_blank,
+    :allow_destroy => true
 
   # Validation
   validate :valid_customer_identification
-  validates_uniqueness_of :name,  scope: :identification
+  # validates_uniqueness_of :name,  scope: :identification
   validates :invoicing_address, format: { without: /<(.*)>.*?|<(.*) \/>/,
     message: "Wrong address format" }
   validates :shipping_address, format: { without: /<(.*)>.*?|<(.*) \/>/,
@@ -55,11 +59,11 @@ class Customer < ActiveRecord::Base
   }
 
   def total
-    invoices.where(draft: false, failed: false).sum :gross_amount || 0
+    customer_items.where(customer_id: id).sum :net_amount || 0
   end
 
   def paid
-    invoices.where(draft: false, failed: false).sum :paid_amount || 0
+    payments_customer.where(customer_id: id).sum :amount || 0
   end
 
   def due

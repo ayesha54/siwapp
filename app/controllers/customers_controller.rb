@@ -170,6 +170,20 @@ class CustomersController < ApplicationController
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
       @customeritem.save!
     end
+
+    PaymentsCustomer.where(customer_id: @customer.id).destroy_all
+    pay = params[:customer][:payments_customer_attributes]
+    tmparr = pay.to_s[2..-1].split('}, "')
+    tmparr.each do |str|
+      id = str.to_i
+      pay_customer = PaymentsCustomer.new
+      pay_customer.customer_id = @customer.id
+      
+      pay_customer.amount = params[:customer][:payments_customer_attributes][id.to_s][:amount]
+      pay_customer.notes = params[:customer][:payments_customer_attributes][id.to_s][:notes]
+      pay_customer.date = params[:customer][:payments_customer_attributes][id.to_s][:date]
+      pay_customer.save!
+    end
     respond_to do |format|
       if @customer.update(customer_params)
         set_meta @customer

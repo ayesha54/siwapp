@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_10_141801) do
+ActiveRecord::Schema.define(version: 2022_01_12_142443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,6 +193,24 @@ ActiveRecord::Schema.define(version: 2022_01_10_141801) do
     t.datetime "deleted_at"
     t.index ["deleted_at"], name: "index_payments_on_deleted_at"
     t.index ["invoice_id"], name: "invoice_id_idx"
+  end
+
+  create_table "payments_customer", force: :cascade do |t|
+    t.integer "customer_id"
+    t.date "date"
+    t.decimal "amount"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "payments_customers", force: :cascade do |t|
+    t.integer "customer_id"
+    t.date "date"
+    t.decimal "amount"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "products", force: :cascade do |t|

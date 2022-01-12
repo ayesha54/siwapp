@@ -254,7 +254,7 @@
         <tbody>
           <tr>
             <th>Booking Date:</th>
-            <td class="total"><%= customer.customer_items.first.created_at %></td>
+            <td class="total"><%= customer.customer_items.first.created_at.strftime("%Y-%m-%d") %></td>
           </tr>
           <tr>
             <th>Check in:</th>
