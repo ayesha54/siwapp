@@ -49,6 +49,7 @@
           $($(".js-net-amount-bed")[i]).text(msg.data[i].net_amount)
           $($(".net-amount-bed")[i]).val(msg.data[i].net_amount)
           $($(".unitary-cost-bed")[i]).val(msg.data[i].unitary_cost)
+          $($(".discount-bed")[i]).val(msg.data[i].discount)
         }
 
         let valarr = []
@@ -57,6 +58,9 @@
         }
         $($(".tax-select")[0]).val(valarr)
         $($(".tax-select")[0]).trigger('change')
+        
+        $($(".meal-select")[0]).val(msg.meal.split(','))
+        $($(".meal-select")[0]).trigger('change')
       });
 
     } else {

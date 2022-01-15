@@ -6,4 +6,8 @@ class CustomerItem < ActiveRecord::Base
   def base_amount
     (unitary_cost.to_f * quantity.to_f)
   end
+
+  def description
+    "Room: " + Room.where(id: room_id).first.name + " Bed: " + Bed.where(id: bed_id).first.name
+  end
 end

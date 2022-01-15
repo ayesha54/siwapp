@@ -41,6 +41,7 @@ class CustomersController < ApplicationController
     @beds = Bed.where(room_id: Room.first.id)
     @cost = @beds.first.price
     @customer.customer_items << CustomerItem.new(customer: @customer)
+    @templates = Template.where(template_type: "customer")
     render
   end
 
@@ -50,14 +51,16 @@ class CustomersController < ApplicationController
     ci = CustomerItem.where(customer_id: params[:id])
     @rooms = Room.where(id: ci.pluck(:room_id))
     @beds = Bed.where(room_id: ci.pluck(:room_id))
+    @templates = Template.where(template_type: "customer")
     render
   end
 
   def update_content
     ci = CustomerItem.where(customer_id: params[:id])
     tax = CustomerTax.where(customer_id: params[:id])
+    meal = Customer.where(id: params[:id]).first.meal
     respond_to do |format|
-      msg = { :data => ci, :tax => tax}
+      msg = { :data => ci, :tax => tax, :meal => meal}
       format.json  { render :json => msg }
     end
   end
@@ -73,18 +76,26 @@ class CustomersController < ApplicationController
   # POST /customers
   # POST /customers.json
   def create
-
-    @customer = Customer.where(name: params[:customer][:name]).first
-    unless @customer 
-      @customer = Customer.new
-      @customer.name = params[:customer][:name]
-      @customer.identification = params[:customer][:identification]
-      @customer.email = params[:customer][:email]
-      @customer.contact_person = params[:customer][:contact_person]
-      @customer.invoicing_address = params[:customer][:invoicing_address]
-      @customer.shipping_address = params[:customer][:shipping_address]
-      @customer.save!
+    @customer = Customer.new
+    @customer.name = params[:customer][:name]
+    @customer.identification = params[:customer][:identification]
+    @customer.email = params[:customer][:email]
+    @customer.contact_person = params[:customer][:contact_person]
+    @customer.invoicing_address = params[:customer][:invoicing_address]
+    @customer.shipping_address = params[:customer][:shipping_address]
+    @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
+    @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
+    @customer.check_in = params[:customer][:check_in]
+    @customer.check_out = params[:customer][:check_out]
+    tmp = ""
+    params[:customer][:meal].each do |val|
+      if val.present?
+        tmp += val + ","
+      end
     end
+    @customer.meal = tmp
+    @customer.save!
+    
 
     params[:customer][:customer_tax][:tax].each do |val|
       if val.present?
@@ -159,6 +170,20 @@ class CustomersController < ApplicationController
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
       @customeritem.save!
     end
+
+    PaymentsCustomer.where(customer_id: @customer.id).destroy_all
+    pay = params[:customer][:payments_customer_attributes]
+    tmparr = pay.to_s[2..-1].split('}, "')
+    tmparr.each do |str|
+      id = str.to_i
+      pay_customer = PaymentsCustomer.new
+      pay_customer.customer_id = @customer.id
+      
+      pay_customer.amount = params[:customer][:payments_customer_attributes][id.to_s][:amount]
+      pay_customer.notes = params[:customer][:payments_customer_attributes][id.to_s][:notes]
+      pay_customer.date = params[:customer][:payments_customer_attributes][id.to_s][:date]
+      pay_customer.save!
+    end
     respond_to do |format|
       if @customer.update(customer_params)
         set_meta @customer
@@ -203,8 +228,13 @@ class CustomersController < ApplicationController
 
   def print
     @customer = Customer.find(params[:id])
+    @room = Room.where(id: @customer.customer_items.first.room_id).first
+    @bed = Bed.where(id: @customer.customer_items.first.bed_id).first
+    net = @bed.price * (@customer.check_out.mjd - @customer.check_in.mjd)
+    sc = net*0.1
+    g = (net+sc)*0.12
     html = render_to_string :inline => @customer.get_print_template.template,
-      :locals => {:customer => @customer, :settings => Settings}
+      :locals => {:customer => @customer, :settings => Settings, :room => @room, :bed => @bed, :sc => sc, :g => g, :net => net}
     respond_to do |format|
       format.html { render inline: html }
       format.pdf do

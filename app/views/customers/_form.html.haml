@@ -23,7 +23,25 @@
 
   %fieldset.m-b-2
     %legend.m-b-1 Customer Details
-    = render partial: 'customer_items', locals: {f: f}
+    = render partial: 'customer_items', locals: {f: f} 
+
+  - unless @customer.new_record?
+    %fieldset.m-b-2{data: {changes: 'amount'}}
+      %legend.m-b-1=t("payments")
+
+      #js-payments-table.invoice-table
+        = f.fields_for :payments_customer, include_id: false  do |payment_form|
+          = render partial: 'payments_customer_fields', locals: {f: payment_form}
+
+      .invoice-table-actions
+        = link_to_add_association t("add payment"), f, :payments_customer,    |
+          'data-association-insertion-node' => '#js-payments-table', |
+          'data-association-insertion-method' => 'append',        |
+          :class => 'btn btn-secondary'
+
+  %fieldset.m-b-2
+    %legend.m-b-1 Meal plan
+    = f.collection_select :meal, Meal.list, :name, :name, {}, {class: 'form-control c-select meal-select', multiple: true, "data-role": "taxes-selector"}
 
   %fieldset.m-b-2
     %legend.m-b-1 Taxs

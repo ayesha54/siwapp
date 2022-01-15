@@ -17,7 +17,7 @@
 
   .invoice-col.invoice-col--discount.form-group
     = f.label :discount
-    = f.text_field :discount, class: "form-control discount", "data-role": "discount"
+    = f.text_field :discount, class: "form-control discount-bed", "data-role": "discount", value: 0
 
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
@@ -69,13 +69,18 @@
     });
   })
 
+  $(".discount-bed").change(function() {
+    changeNet(this)
+  })
+
   function changeNet(e) {
     let parent = $(e).closest(".invoice-row")
     let cost = $(parent).find(".invoice-col .unitary-cost-bed")
     let quan = $(parent).find(".invoice-col .quantity-bed")
     let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
     let net = $(parent).find(".invoice-col .net-amount-bed")
-    let t = parseInt($(cost).val()) * parseInt($(quan).val())
+    let discount = $(parent).find(".discount-bed")
+    let t = parseInt($(cost).val()) * parseInt($(quan).val()) - parseInt($(discount).val())
     $(net_text).text(t)
     $(net).val(t)
   }

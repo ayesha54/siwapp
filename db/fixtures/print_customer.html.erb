@@ -158,6 +158,11 @@
       white-space: nowrap;
       width: 10rem;
     }
+    .total {
+      text-align: right;
+      white-space: nowrap;
+      width: 10rem;
+    }
     table.info {
       float: right;
       font-size: 90%;
@@ -209,7 +214,6 @@
   </style>
 </head>
 <body class="customer">
-
   <div class="row">
     <% if settings.company_logo != "" %>
     <div class="section-lg">
@@ -232,25 +236,16 @@
   <div class="row">
     <div class="section-sm">
       <p class="text-muted">Billed to:</p>
+      
       <ul class="company customer">
         <% if customer.name? %>
-          <li class="company__name"><%= customer.name %></li>
-        <% end %>
-        <% if customer.identification? %>
-          <li class="company__id"><%= customer.identification %></li>
-        <% end %>
-        <% if customer.invoicing_address? || customer.contact_person? %>
-          <li class="company__address">
-            <% if customer.contact_person? %>
-              <%= customer.contact_person %><br>
-            <% end %>
-            <% if customer.invoicing_address? %>
-              <%= format_address customer.invoicing_address %>
-            <% end %>
-          </li>
+          <li><b>Name: </b><%= customer.name %></li>
         <% end %>
         <% if customer.email? %>
-          <li><%= customer.email %></li>
+          <li><b>Email</b><%= customer.email %></li>
+        <% end %>
+        <% if customer %>
+          <li><b>Phone</b></li>
         <% end %>
       </ul>
     </div>
@@ -258,16 +253,24 @@
       <table cellspacing="0" class="info">
         <tbody>
           <tr>
-            <th>Customer Number:</th>
-            <td class="total"><%= customer %></td>
+            <th>Booking Date:</th>
+            <td class="total"><%= customer.customer_items.first.created_at.strftime("%Y-%m-%d") %></td>
           </tr>
           <tr>
-            <th>Billed:</th>
+            <th>Check in:</th>
             <td class="total"><%= customer.check_in %></td>
           </tr>
           <tr>
-            <th>Due on:</th>
+            <th>Check out:</th>
             <td class="total"><%= customer.check_out %></td>
+          </tr>
+          <tr>
+            <th>No Nights:</th>
+            <td class="total"><%= customer.check_out.mjd - customer.check_in.mjd %></td>
+          </tr>
+          <tr>
+            <th>Meet Plan:</th>
+            <td class="total"><%= customer.meal.chop %></td>
           </tr>
         </tbody>
       </table>
@@ -276,7 +279,7 @@
 
   <div class="row">
     <div class="amount">
-      <%= display_money customer.gross_amount, "usd" %>
+      <%= display_money sc+g+net, "usd" %>
       <span class="amount__currency">USD</span>
     </div>
   </div>
@@ -297,8 +300,8 @@
         <tr>
           <td><%= item.description %></td>
           <% if @customer.have_items_discount? %>
-          <td><%= display_money item.base_amount, "usd" %></td>
-          <td><% if item.discount > 0 %><%= item.discount %>%<% end %></td>
+          <td><%= display_money Bed.where(id: item.bed_id).first.price, "usd" %></td>
+          <td><% if item.discount > 0 %><%= display_money item.discount, "usd" %><% end %></td>
           <% end %>
           <td class="total"><%= display_money item.net_amount, "usd" %></td>
         </tr>
@@ -308,28 +311,30 @@
 
   <div class="row">
     <div class="section">
-      
     </div>
     <div class="section">
       <table class="totals" cellspacing="0">
         <tbody>
           <tr>
-            <th>Subtotal</th>
-            <td class="total"><%= display_money customer.net_amount, "usd" %></td>
+            <th>Green Tax</th>
+            <td class="total">3$ per person/ night</td>
           </tr>
-          <% customer.customer_tax.each do |tax, value| %>
-            <tr>
-              <th><%= Tax.where(id: tax.tax_id).first.name %></th>
-              <td class="total"><%= display_money Tax.where(id: tax.tax_id).first.value, "usd" %></td>
-            </tr>
-          <% end %>
+          <tr>
+            <th>SC</th>
+            <td class="total"><%= display_money sc, "usd" %></td>
+          </tr>
+          <tr>
+            <th>T-GST</th>
+            <td class="total"><%= display_money g, "usd" %></td>
+          </tr>
           <tr class="grand-total">
             <th>Total</th>
-            <td class="total"><%= display_money customer.gross_amount, "usd" %></td>
+            <td class="total"><%= display_money sc+g+net, "usd" %></td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
 </body>
 </html>

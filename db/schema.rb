@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_08_053337) do
+ActiveRecord::Schema.define(version: 2022_01_12_142443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -127,6 +127,7 @@ ActiveRecord::Schema.define(version: 2022_01_08_053337) do
     t.date "check_out"
     t.integer "print_template_id"
     t.integer "email_template_id"
+    t.string "meal"
     t.index ["deleted_at"], name: "index_customers_on_deleted_at"
     t.index ["name_slug"], name: "cstm_slug_idx", unique: true
   end
@@ -176,6 +177,12 @@ ActiveRecord::Schema.define(version: 2022_01_08_053337) do
     t.index ["commons_id"], name: "index_line_invoices_on_commons_id"
   end
 
+  create_table "meals", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "payments", force: :cascade do |t|
     t.integer "invoice_id", null: false
     t.date "date"
@@ -186,6 +193,24 @@ ActiveRecord::Schema.define(version: 2022_01_08_053337) do
     t.datetime "deleted_at"
     t.index ["deleted_at"], name: "index_payments_on_deleted_at"
     t.index ["invoice_id"], name: "invoice_id_idx"
+  end
+
+  create_table "payments_customer", force: :cascade do |t|
+    t.integer "customer_id"
+    t.date "date"
+    t.decimal "amount"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "payments_customers", force: :cascade do |t|
+    t.integer "customer_id"
+    t.date "date"
+    t.decimal "amount"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "products", force: :cascade do |t|
@@ -269,6 +294,7 @@ ActiveRecord::Schema.define(version: 2022_01_08_053337) do
     t.datetime "deleted_at"
     t.boolean "email_default", default: false
     t.string "subject", limit: 200
+    t.string "template_type"
     t.index ["deleted_at"], name: "index_templates_on_deleted_at"
   end
 
