@@ -4,11 +4,11 @@
       .col-xs-12.col-sm-6
         .form-group
           = f.label :check_in
-          = f.date_field :check_in, {class: 'form-control', value: @customer.check_in.present? ? @customer.check_in.strftime('%Y-%m-%d') : Time.now.strftime('%Y-%m-%d')}
+          = f.date_field :check_in, {class: 'form-control select-checkin', value: @customer.check_in.present? ? @customer.check_in.strftime('%Y-%m-%d') : Time.now.strftime('%Y-%m-%d')}
       .col-xs-12.col-sm-6
         .form-group
           = f.label :check_out
-          = f.date_field :check_out, {class: 'form-control', value: @customer.check_out.present? ? @customer.check_out.strftime('%Y-%m-%d') : (Time.now + 5.days).strftime('%Y-%m-%d')}
+          = f.date_field :check_out, {class: 'form-control select-checkout', value: @customer.check_out.present? ? @customer.check_out.strftime('%Y-%m-%d') : (Time.now + 5.days).strftime('%Y-%m-%d')}
 
     .row
       .col-xs-12.col-sm-6
@@ -30,10 +30,38 @@
         'data-association-insertion-node' => '#js-items-table', |
         'data-association-insertion-method' => 'append',        |
         :partial => 'item_fields',                       |
-        :class => 'btn btn-secondary'                           |
-:javascript
-  $(document).ready(function() {
+        :class => 'btn btn-secondary add-line'                           |
+  .col-xs-12.col-sm-6.col-md-5.col-lg-4
+    #amounts.invoice-amounts
+      %table.table
+        %tr
+          %th{scope: "row"} #{t("subtotal")}:
+          %td#subtotal$ 0
+        %tr.amounts-total
+          %th{scope: "row"} #{t("total")}:
+          %td#total-amount$ 0
 
+
+:javascript
+  function getDateDiff() {
+    let a = new Date($(".select-checkin").val());
+    let b = new Date($(".select-checkout").val());
+    let c = (b - a)/(1000 * 3600 * 24)
+    $(".quantity-bed").each(function() {
+      $(this).val(c)
+    })
+    $(".room-select").each(function() {
+      changeNet(this)
+    })
+  }
+  $(".select-checkin").change(function() {
+    getDateDiff();
+  })
+  $(".select-checkout").change(function() {
+    getDateDiff();
+  })
+  $(document).ready(function() {
+    getDateDiff();
     if(window.location.href.includes("edit")) {
       let href = window.location.pathname
       let thenum = href.replace( /^\D+/g, '');
@@ -61,6 +89,7 @@
         
         $($(".meal-select")[0]).val(msg.meal.split(','))
         $($(".meal-select")[0]).trigger('change')
+        changeTotal();
       });
 
     } else {
