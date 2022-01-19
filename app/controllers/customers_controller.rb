@@ -114,7 +114,7 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
@@ -142,6 +142,16 @@ class CustomersController < ApplicationController
     @customer.shipping_address = params[:customer][:shipping_address]
     @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
     @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
+
+    tmp = ""
+    params[:customer][:meal].each do |val|
+      if val.present?
+        tmp += val + ","
+      end
+    end
+    @customer.meal = tmp
+    @customer.save!
+
     @customer.save!
 
     CustomerTax.where(customer_id: params[:id]).destroy_all
@@ -164,7 +174,7 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
@@ -173,16 +183,18 @@ class CustomersController < ApplicationController
 
     PaymentsCustomer.where(customer_id: @customer.id).destroy_all
     pay = params[:customer][:payments_customer_attributes]
-    tmparr = pay.to_s[2..-1].split('}, "')
-    tmparr.each do |str|
-      id = str.to_i
-      pay_customer = PaymentsCustomer.new
-      pay_customer.customer_id = @customer.id
-      
-      pay_customer.amount = params[:customer][:payments_customer_attributes][id.to_s][:amount]
-      pay_customer.notes = params[:customer][:payments_customer_attributes][id.to_s][:notes]
-      pay_customer.date = params[:customer][:payments_customer_attributes][id.to_s][:date]
-      pay_customer.save!
+    if pay 
+      tmparr = pay.to_s[2..-1].split('}, "')
+      tmparr.each do |str|
+        id = str.to_i
+        pay_customer = PaymentsCustomer.new
+        pay_customer.customer_id = @customer.id
+        
+        pay_customer.amount = params[:customer][:payments_customer_attributes][id.to_s][:amount]
+        pay_customer.notes = params[:customer][:payments_customer_attributes][id.to_s][:notes]
+        pay_customer.date = params[:customer][:payments_customer_attributes][id.to_s][:date]
+        pay_customer.save!
+      end
     end
     respond_to do |format|
       if @customer.update(customer_params)

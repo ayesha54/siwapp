@@ -8,8 +8,8 @@
     = f.collection_select :bed_id, @beds, :id, :name, {include_blank: false}, {class: 'form-control c-select bed-select'}
 
   .invoice-col.invoice-col--quantity.form-group
-    = f.label :quantity
-    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
+    = f.label "No nights"
+    = f.text_field :quantity, :disabled => "disabled", class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
@@ -31,6 +31,9 @@
   -# = f.hidden_field
 
 :javascript
+  $(document).ready(function() {
+    getDateDiff();
+  })
   $(".room-select").change(function() {
     let self = this
     let id = $(this).val()
@@ -83,6 +86,19 @@
     let t = parseInt($(cost).val()) * parseInt($(quan).val()) - parseInt($(discount).val())
     $(net_text).text(t)
     $(net).val(t)
+    changeTotal();
+  }
+
+  function changeTotal() {
+    let total = 0
+    $(".js-net-amount-bed").each(function() {
+      let tmp = $(this).text()
+      console.log(tmp)
+      total += parseInt(tmp)
+    })
+    console.log(total)
+    $("#subtotal").text("$ "+ total)
+    $("#total-amount").text("$ "+ total)
   }
 
   $(".quantity-bed").change(function() {

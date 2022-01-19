@@ -14,6 +14,7 @@ class InvoicesController < CommonsController
     @invoice = Invoice.where(id: params[:id]).first
     ids = Item.where(common_id: @invoice.id).pluck(:inventory_id)
     ids2 = Item.where(common_id: @invoice.id).pluck(:category_id)
+    @templates = Template.where(template_type: "invoice")
     @inventories = Inventory.where(id: ids)
     # @category = Category.where(id: ids2)
     # logger.debug "qwe123 #{@category}"
@@ -27,18 +28,6 @@ class InvoicesController < CommonsController
   end
 
   def create
-    @customer = Customer.where(name: params[:invoice][:name]).first
-    unless @customer 
-      @customer = Customer.new
-      @customer.name = params[:invoice][:name]
-      @customer.identification = params[:invoice][:identification]
-      @customer.email = params[:invoice][:email]
-      @customer.contact_person = params[:invoice][:contact_person]
-      @customer.invoicing_address = params[:invoice][:invoicing_address]
-      @customer.shipping_address = params[:invoice][:shipping_address]
-      @customer.save!
-    end
-
     @invoice = Invoice.new
     @invoice.name = params[:invoice][:name]
     @invoice.identification = params[:invoice][:identification]
@@ -48,7 +37,6 @@ class InvoicesController < CommonsController
     @invoice.shipping_address = params[:invoice][:shipping_address]
     @invoice.terms = params[:invoice][:terms]
     @invoice.notes = params[:invoice][:notes]
-    @invoice.customer_id = @customer.id
     @invoice.currency = params[:invoice][:currency]
     @invoice.series_id = params[:invoice][:series_id]
     @invoice.issue_date = params[:invoice][:issue_date]
@@ -76,6 +64,7 @@ class InvoicesController < CommonsController
     logger.debug "total #{total}"
     @invoice.gross_amount = total
     @invoice.save!
+    redirect_to redirect_address("invoices")
   end
 
   # GET /invoices/new
@@ -83,6 +72,7 @@ class InvoicesController < CommonsController
     @inventories = Inventory.all
     @invoice = Invoice.new
     # put an empty item
+    @templates = Template.where(template_type: "invoice")
     @invoice.items << Item.new(common: @invoice, taxes: Tax.default)
     render
   end

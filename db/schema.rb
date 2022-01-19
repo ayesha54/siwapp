@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_12_142443) do
+ActiveRecord::Schema.define(version: 2022_01_18_140034) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,7 +32,6 @@ ActiveRecord::Schema.define(version: 2022_01_12_142443) do
 
   create_table "commons", force: :cascade do |t|
     t.integer "series_id"
-    t.integer "customer_id", null: false
     t.string "name", limit: 100
     t.string "identification", limit: 50
     t.string "email", limit: 100
@@ -70,7 +69,6 @@ ActiveRecord::Schema.define(version: 2022_01_12_142443) do
     t.integer "deleted_number"
     t.string "currency", limit: 3
     t.index ["contact_person"], name: "cntct_idx"
-    t.index ["customer_id"], name: "customer_id_idx"
     t.index ["deleted_at"], name: "index_commons_on_deleted_at"
     t.index ["email"], name: "cstml_idx"
     t.index ["identification"], name: "cstid_idx"
