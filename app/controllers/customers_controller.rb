@@ -90,6 +90,10 @@ class CustomersController < ApplicationController
     tmp = ""
     params[:customer][:meal].each do |val|
       if val.present?
+        meal = Meal.where(name: val).first
+        unless meal
+          Meal.create(name: val)
+        end
         tmp += val + ","
       end
     end
@@ -146,6 +150,10 @@ class CustomersController < ApplicationController
     tmp = ""
     params[:customer][:meal].each do |val|
       if val.present?
+        meal = Meal.where(name: val).first
+        unless meal
+          Meal.create(name: val)
+        end
         tmp += val + ","
       end
     end

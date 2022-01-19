@@ -47,21 +47,34 @@
     let a = new Date($(".select-checkin").val());
     let b = new Date($(".select-checkout").val());
     let c = (b - a)/(1000 * 3600 * 24)
-    $(".quantity-bed").each(function() {
-      $(this).val(c)
-    })
+    return c
+  }
+  function triggerRoom() {
     $(".room-select").each(function() {
       changeNet(this)
     })
   }
+  function changeAllQuantityBed(val) {
+    $(".quantity-bed").each(function() {
+      $(this).val(val)
+    })
+    triggerRoom()
+  }
+  function changeLastQuantityBed(val) {
+    $(".quantity-bed").last().val(val)
+    triggerRoom()
+  }
   $(".select-checkin").change(function() {
-    getDateDiff();
+    let val = getDateDiff();
+    changeAllQuantityBed(val)
   })
   $(".select-checkout").change(function() {
-    getDateDiff();
+    let val = getDateDiff();
+    changeAllQuantityBed(val)
   })
   $(document).ready(function() {
-    getDateDiff();
+    let val = getDateDiff();
+    changeAllQuantityBed(val)
     if(window.location.href.includes("edit")) {
       let href = window.location.pathname
       let thenum = href.replace( /^\D+/g, '');

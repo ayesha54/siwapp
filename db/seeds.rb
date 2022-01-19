@@ -18,22 +18,42 @@ Settings.company_logo = ""
 Settings.legal_terms = ""
 Settings.currency = "usd"
 
-Template.create(name: "Print Default",
-                template: File.read(Rails.root.join('db', 'fixtures', 'print_default.html.erb')).strip(),
-                print_default: true, template_type: "invoice")
-Template.create(name: "Print Customer",
+t = Template.where(name: "Print Default", template_type: "invoice").first
+if t
+    t.update(template: File.read(Rails.root.join('db', 'fixtures', 'print_default.html.erb')).strip())
+else
+    Template.create(name: "Print Default",
+                    template: File.read(Rails.root.join('db', 'fixtures', 'print_default.html.erb')).strip(),
+                    print_default: true, template_type: "invoice")
+end
+
+t = Template.where(name: "Print Customer", template_type: "customer").first
+if t
+    t.update(template: File.read(Rails.root.join('db', 'fixtures', 'print_customer.html.erb')).strip())
+else
+    Template.create(name: "Print Customer",
                 template: File.read(Rails.root.join('db', 'fixtures', 'print_customer.html.erb')).strip(),
                 print_default: false, template_type: "customer")
+end
 
-Template.create(name: "Email Default",
+t = Template.where(name: "Email Default", template_type: "invoice").first
+if t
+    t.update(template: File.read(Rails.root.join('db', 'fixtures', 'email_default.html.erb')).strip())
+else
+    Template.create(name: "Email Default",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_default.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= invoice %>",
                 email_default: true, template_type: "invoice")
-Template.create(name: "Email Customer",
+end
+
+t = Template.where(name: "Email Customer", template_type: "customer").first
+if t
+    t.update(template: File.read(Rails.root.join('db', 'fixtures', 'email_customer.html.erb')).strip())
+else
+    Template.create(name: "Email Customer",
                 template: File.read(Rails.root.join('db', 'fixtures', 'email_customer.html.erb')).strip(),
                 subject: "Payment Confirmation: <%= customer %>",
                 email_default: false, template_type: "customer")
+end
+
 User.create(name: "demo",email: "demo@example.com", password: "secret_password")
-Meal.create(name: "BB")
-Meal.create(name: "HB")
-Meal.create(name: "FB")

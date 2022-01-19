@@ -9,7 +9,7 @@
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label "No nights"
-    = f.text_field :quantity, :disabled => "disabled", class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
+    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
@@ -31,8 +31,12 @@
   -# = f.hidden_field
 
 :javascript
+  $(".remove_fields").click(function() {
+    changeNet2(this)
+  })
   $(document).ready(function() {
-    getDateDiff();
+    let val = getDateDiff();
+    changeLastQuantityBed(val);
   })
   $(".room-select").change(function() {
     let self = this
@@ -76,6 +80,19 @@
     changeNet(this)
   })
 
+  function changeNet2(e) {
+    let parent = $(e).closest(".invoice-row")
+    let net = $(parent).find(".invoice-col .net-amount-bed")
+    let total = 0
+    $(".js-net-amount-bed").each(function() {
+      let tmp = $(this).text()
+      total += parseInt(tmp)
+    })
+    total = total - parseInt($(net).val())
+    $("#subtotal").text("$ "+ total)
+    $("#total-amount").text("$ "+ total)
+  }
+
   function changeNet(e) {
     let parent = $(e).closest(".invoice-row")
     let cost = $(parent).find(".invoice-col .unitary-cost-bed")
@@ -93,10 +110,8 @@
     let total = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
-      console.log(tmp)
       total += parseInt(tmp)
     })
-    console.log(total)
     $("#subtotal").text("$ "+ total)
     $("#total-amount").text("$ "+ total)
   }
