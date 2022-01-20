@@ -46,14 +46,15 @@
 
 :javascript
   function addTax() {
-    console.log("run")
     const tax_arr = {}
     $(".tax-select-bed").each(function() {
       let ids = $(this).val()
+      let parent = $(this).closest(".invoice-row")
+      let net = $(parent).find(".invoice-col .net-amount-bed")
       if(ids != null) {
         for (let i = 0; i < ids.length; i++) {
           if (!(ids[i].split('_')[2] in tax_arr)) tax_arr[ids[i].split('_')[2]] = 0
-          tax_arr[ids[i].split('_')[2]] += parseInt(ids[i].split('_')[1])
+          tax_arr[ids[i].split('_')[2]] += parseInt(ids[i].split('_')[1]) * parseInt($(net).val()) / 100
         }
       }
     });

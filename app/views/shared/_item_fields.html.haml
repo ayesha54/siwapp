@@ -23,7 +23,7 @@
     %label{"data-role": "taxes-selector-label"}
       =t("taxes")
       %span{data: {role: 'total'}}
-    = f.collection_select :tax_ids, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select', multiple: true, "data-role": "taxes-selector"}
+    = f.collection_select :tax_ids, Tax.enabled, :id, :to_s, {}, {class: 'form-control c-select tax-select-invoice', multiple: true, "data-role": "taxes-selector"}
 
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
@@ -37,6 +37,9 @@
   = f.hidden_field :id
 
 :javascript
+  $(".tax-select-invoice").change(function() {
+    $(".inventory-select").trigger('change')
+  })
   $(function() {
     $(".inventory-select").each(function(e) {
       if (window.location.href.includes("/edit")) return
