@@ -37,12 +37,32 @@
         %tr
           %th{scope: "row"} #{t("subtotal")}:
           %td#subtotal$ 0
+      %table.table#tax-table
+      %table.table
         %tr.amounts-total
           %th{scope: "row"} #{t("total")}:
           %td#total-amount$ 0
 
 
 :javascript
+  function addTax() {
+    console.log("run")
+    const tax_arr = {}
+    $(".tax-select-bed").each(function() {
+      let ids = $(this).val()
+      if(ids != null) {
+        for (let i = 0; i < ids.length; i++) {
+          if (!(ids[i].split('_')[2] in tax_arr)) tax_arr[ids[i].split('_')[2]] = 0
+          tax_arr[ids[i].split('_')[2]] += parseInt(ids[i].split('_')[1])
+        }
+      }
+    });
+    changeTax(tax_arr)
+  }
+  function changeTax(tax_arr) {
+    $("#tax-table tr").remove();
+    for (var i in tax_arr) { $("#tax-table").append("<tr><th>"+i+":</th><td>$ "+tax_arr[i]+"</td></tr>")}
+  }
   function getDateDiff() {
     let a = new Date($(".select-checkin").val());
     let b = new Date($(".select-checkout").val());
@@ -93,12 +113,11 @@
           $($(".discount-bed")[i]).val(msg.data[i].discount)
         }
 
-        let valarr = []
         for(let i = 0; i < msg.tax.length; i++) {
-          valarr.push(msg.tax[i].tax_id)
+          $($(".tax-select-bed")[i]).val(msg.tax[i])
+          $($(".tax-select-bed")[i]).trigger('change')
         }
-        $($(".tax-select")[0]).val(valarr)
-        $($(".tax-select")[0]).trigger('change')
+        addTax();
         
         $($(".meal-select")[0]).val(msg.meal.split(','))
         $($(".meal-select")[0]).trigger('change')

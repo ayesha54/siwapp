@@ -19,6 +19,12 @@
     = f.label :discount
     = f.text_field :discount, class: "form-control discount-bed", "data-role": "discount", value: 0
 
+  .invoice-col.invoice-col--taxes.form-group
+    %label{"data-role": "taxes-selector-label"}
+      =t("taxes")
+      %span{data: {role: 'total'}}
+    = f.collection_select :tax_ids, Tax.enabled, :value_id, :to_s, {}, {class: 'form-control c-select tax-select-bed', multiple: true, "data-role": "taxes-selector"}
+
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
     %p.form-control-static.js-net-amount-bed= @cost
@@ -28,9 +34,39 @@
     = material_icon.delete
     %span Remove Line
 
-  -# = f.hidden_field
+  %input.sub-net{:type => "hidden"}
 
 :javascript
+  $(".tax-select-bed").change(function() {
+    let self = this
+    let t = 0
+    changeNet(self)
+    if($(self).val() != null) {
+      let val = $(self).val()
+      for(let i = 0; i < val.length; i++) {
+        val[i] = val[i].split('_')[0]
+      }
+      $.ajax({
+        method: "GET",
+        url: "/tax/get_value",
+        data: { id: val }
+      })
+      .success(function( msg ) {
+        for (let i = 0; i < msg.tax.length; i++) {
+          t += parseInt(msg.tax[i].value)
+        }
+        let parent = $(self).closest(".invoice-row")
+        let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
+        let net = $(parent).find(".invoice-col .net-amount-bed")
+        let sub = $(parent).find(".sub-net")
+        t += parseInt($(sub).val())
+        $(net_text).text(t)
+        $(net).val(t)
+        changeTotal();
+      });
+    }
+    addTax()
+  })
   $(".remove_fields").click(function() {
     changeNet2(this)
   })
@@ -100,19 +136,26 @@
     let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
     let net = $(parent).find(".invoice-col .net-amount-bed")
     let discount = $(parent).find(".discount-bed")
+    let sub = $(parent).find(".sub-net")
     let t = parseInt($(cost).val()) * parseInt($(quan).val()) - parseInt($(discount).val())
     $(net_text).text(t)
     $(net).val(t)
+    $(sub).val(t)
     changeTotal();
   }
 
   function changeTotal() {
     let total = 0
+    let sub = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
       total += parseInt(tmp)
     })
-    $("#subtotal").text("$ "+ total)
+    $(".sub-net").each(function() {
+      let tmp = $(this).val()
+      sub += parseInt(tmp)
+    })
+    $("#subtotal").text("$ "+ sub)
     $("#total-amount").text("$ "+ total)
   }
 

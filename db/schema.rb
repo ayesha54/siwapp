@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_18_140034) do
+ActiveRecord::Schema.define(version: 2022_01_20_152844) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -79,6 +79,13 @@ ActiveRecord::Schema.define(version: 2022_01_18_140034) do
     t.index ["series_id"], name: "series_id_idx"
     t.index ["type"], name: "common_type_idx"
     t.index ["type"], name: "type_and_status_idx"
+  end
+
+  create_table "customer_item_taxes", force: :cascade do |t|
+    t.integer "customer_item_id"
+    t.integer "tax_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "customer_items", force: :cascade do |t|
