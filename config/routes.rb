@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   get '/bed/update_bed', to: "beds#update_bed"
   get '/customer/update_content', to: "customers#update_content"
   get '/customer/update_cost', to: "customers#update_cost"
+  get '/tax/get_value', to: "taxes#get_tax_by_id"
 
   resources :commons do
     post 'select_print_template', on: :member
