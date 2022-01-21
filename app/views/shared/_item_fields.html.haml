@@ -5,7 +5,7 @@
 
   .invoice-col.invoice-col--description.form-group
     = f.label "Inventory"
-    = f.collection_select :inventory_id, @inventories, :id, :name, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
+    = f.collection_select :inventory_id, @inventories, :value_id, :name, {include_blank: t("select inventory")}, {class: 'form-control c-select inventory-select'}
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label :quantity
@@ -32,11 +32,15 @@
 
   = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
     = material_icon.delete
-    %span Remove Line
+    %span.remove-line-invoice Remove Line
 
   = f.hidden_field :id
 
 :javascript
+  $(".remove-line-invoice").click(function() {
+    $($(this).closest('.invoice-row')).remove();
+    changeNet(this)
+  })
   $(".tax-select-invoice").change(function() {
     $(".inventory-select").trigger('change')
   })

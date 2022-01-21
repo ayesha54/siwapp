@@ -7,7 +7,7 @@
     = f.text_area :notes, class: "form-control", rows: 1
   .invoice-col.invoice-col--amount.form-group
     = f.label :amount
-    = f.text_field :amount, class: 'form-control'
+    = f.text_field :amount, class: 'form-control payment-customer-amount'
 
   = link_to_remove_association f, {wrapper_class: 'js-payment', class: 'destroy-icon'} do
     = material_icon.delete

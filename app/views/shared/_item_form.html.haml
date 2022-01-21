@@ -13,3 +13,25 @@
   .col-xs-12.col-sm-6.col-md-5.col-lg-4
     #amounts.invoice-amounts
       = render partial: 'amounts', locals: {invoice: invoice}
+
+:javascript
+  $(document).ready(function() {
+    if(window.location.href.includes("edit")) {
+      let href = window.location.pathname
+      let thenum = href.replace( /^\D+/g, '');
+      let id = parseInt(thenum)
+      $.ajax({
+        method: "GET",
+        url: "/invoice/update_content",
+        data: { id: id }
+        })
+      .success(function( msg ) {
+        console.log(msg.data)
+        for (let i = 0; i < msg.data.length; i++) {
+          $($(".inventory-select")[i]).val(msg.data[i])
+        }
+        $(".inventory-select").trigger('change')
+      });
+
+    }
+  })

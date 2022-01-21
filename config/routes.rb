@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   get 'invoice/update_inventory', to: "inventories#update_inventory"
   get '/bed/update_bed', to: "beds#update_bed"
   get '/customer/update_content', to: "customers#update_content"
+  get '/invoice/update_content', to: "invoices#update_content"
   get '/customer/update_cost', to: "customers#update_cost"
   get '/tax/get_value', to: "taxes#get_tax_by_id"
 

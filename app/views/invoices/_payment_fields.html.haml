@@ -11,6 +11,11 @@
 
   = link_to_remove_association f, {wrapper_class: 'js-payment', class: 'destroy-icon'} do
     = material_icon.delete
-    %span Remove Payment
+    %span.remove-payment-invoice Remove Payment
 
   = f.hidden_field :id
+
+:javascript
+  $(".remove-payment-invoice").click(function() {
+    $($(this).closest('.invoice-row')).remove();
+  })

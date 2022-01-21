@@ -3,6 +3,7 @@ class Item < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :common, optional: true
   has_and_belongs_to_many :taxes
+  has_many :items_tax
 
   accepts_nested_attributes_for :taxes
 

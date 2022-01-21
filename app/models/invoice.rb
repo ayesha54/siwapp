@@ -118,11 +118,21 @@ class Invoice < Common
     end
   end
 
+  def total
+    total = 0
+    items.each do |item|
+      ct = ItemsTax.where(item_id: item.id)
+      tax = Tax.where(id: ct.pluck(:tax_id)).sum :value
+      total += item.net_amount + item.net_amount*tax/100
+    end
+    total
+  end
+
   # Public: Returns the amount that has not been already paid.
   #
   # Returns a double.
   def unpaid_amount
-    gross_amount - paid_amount
+    total - paid_amount
   end
 
   # Public: Adds a payment for the remaining unpaid amount and updates the

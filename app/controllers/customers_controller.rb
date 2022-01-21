@@ -176,8 +176,6 @@ class CustomersController < ApplicationController
     @customer.meal = tmp
     @customer.save!
 
-    @customer.save!
-
     # CustomerTax.where(customer_id: params[:id]).destroy_all
     # params[:customer][:customer_tax][:tax].each do |val|
     #   if val.present?
