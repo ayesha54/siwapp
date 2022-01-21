@@ -62,7 +62,7 @@
   }
   function changeTax(tax_arr) {
     $("#tax-table tr").remove();
-    for (var i in tax_arr) { $("#tax-table").append("<tr><th>"+i+":</th><td>$ "+tax_arr[i]+"</td></tr>")}
+    for (var i in tax_arr) { $("#tax-table").append("<tr><th>"+i+":</th><td>$ <span class='tax-value'>"+tax_arr[i]+"</span></td></tr>")}
   }
   function getDateDiff() {
     let a = new Date($(".select-checkin").val());

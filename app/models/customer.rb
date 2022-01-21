@@ -59,7 +59,24 @@ class Customer < ActiveRecord::Base
   }
 
   def total
-    customer_items.where(customer_id: id).sum :net_amount || 0
+    # customer_items.where(customer_id: id).sum :net_amount || 0
+    total = 0
+    customer_items.each do |item|
+      ct = CustomerItemTax.where(customer_item_id: item.id)
+      tax = Tax.where(id: ct.pluck(:tax_id)).sum :value
+      total += item.net_amount + item.net_amount*tax/100
+    end
+    total
+  end
+
+  def tax
+    total = 0
+    customer_items.each do |item|
+      ct = CustomerItemTax.where(customer_item_id: item.id)
+      tax = Tax.where(id: ct.pluck(:tax_id)).sum :value
+      total += item.net_amount*tax/100
+    end
+    total
   end
 
   def paid

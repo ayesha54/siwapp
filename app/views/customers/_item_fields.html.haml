@@ -32,11 +32,13 @@
 
   = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
     = material_icon.delete
-    %span Remove Line
-
-  %input.sub-net{:type => "hidden"}
+    %span.remove-line-customer Remove Line
 
 :javascript
+  $(".remove-line-customer").click(function() {
+    $($(this).closest('.invoice-row')).remove();
+    changeNet(this)
+  })
   $(".tax-select-bed").change(function() {
     let self = this
     let t = 0
@@ -142,8 +144,8 @@
     $(net_text).text(t)
     $(net).val(t)
     $(sub).val(t)
-    changeTotal();
     addTax();
+    changeTotal();
   }
 
   function changeTotal() {
@@ -151,14 +153,15 @@
     let sub = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
-      total += parseInt(tmp)
-    })
-    $(".sub-net").each(function() {
-      let tmp = $(this).val()
       sub += parseInt(tmp)
     })
-    $("#subtotal").text("$ "+ total)
-    $("#total-amount").text("$ "+ sub)
+    $(".tax-value").each(function() {
+      let tmp = $(this).text()
+      total += parseInt(tmp)
+    })
+    total += sub
+    $("#subtotal").text("$ "+ sub)
+    $("#total-amount").text("$ "+ total)
   }
 
   $(".quantity-bed").change(function() {

@@ -39,13 +39,14 @@
           'data-association-insertion-method' => 'append',        |
           :class => 'btn btn-secondary'
 
-  %fieldset.m-b-2
-    %legend.m-b-1 Meal plan
-    = f.collection_select :meal, Meal.list, :name, :name, {}, {class: 'form-control c-select meal-select', multiple: true, "data-role": "taxes-selector"}
+  %div{:style => 'display: flex; justify-content: space-between;'}
+    %fieldset.m-b-2{:style => "width: 49%"}
+      %legend.m-b-1 Meal plan
+      = f.collection_select :meal, Meal.list, :name, :name, {}, {class: 'form-control c-select meal-select', multiple: true, "data-role": "taxes-selector"}
 
-  %fieldset.m-b-2
-    %legend.m-b-1 Tags
-    = render partial: 'shared/tagging_field', locals: {f: f, instance: @customer}
+    %fieldset.m-b-2{:style => "width: 49%"}
+      %legend.m-b-1 Tags
+      = render partial: 'shared/tagging_field', locals: {f: f, instance: @customer}
 
   %fieldset.m-b-2
     %legend.m-b-1 Meta Attributes
