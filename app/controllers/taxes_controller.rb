@@ -63,6 +63,14 @@ class TaxesController < ApplicationController
     render json: Tax.where(active: true, default: true)
   end
 
+  def get_tax_by_id
+    @tax = Tax.where(id: params[:id])
+    respond_to do |format|
+      msg = { :tax => @tax }
+      format.json  { render :json => msg }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_tax

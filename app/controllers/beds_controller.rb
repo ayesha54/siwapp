@@ -57,7 +57,6 @@ class BedsController < ApplicationController
   end
 
   def update_bed
-    logger.debug "abc #{params}"
     @beds = Bed.where(room_id: params[:room_id])
     @select_id = params[:select_id]
     puts "============#{@select_id}"
