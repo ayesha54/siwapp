@@ -60,10 +60,10 @@
         let sub = $(parent).find(".sub-net")
 
         for (let i = 0; i < msg.tax.length; i++) {
-          t += parseInt(msg.tax[i].value) * parseInt($(net).val()) / 100
+          t += parseFloat(msg.tax[i].value) * parseFloat($(net).val()) / 100
         }
         
-        t += parseInt($(sub).val())
+        t += parseFloat($(sub).val())
         $(sub).val(t)
         changeTotal();
       });
@@ -125,9 +125,9 @@
     let total = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
-      total += parseInt(tmp)
+      total += parseFloat(tmp)
     })
-    total = total - parseInt($(net).val())
+    total = total - parseFloat($(net).val())
     $("#subtotal").text("$ "+ total)
     $("#total-amount").text("$ "+ total)
   }
@@ -140,7 +140,9 @@
     let net = $(parent).find(".invoice-col .net-amount-bed")
     let discount = $(parent).find(".discount-bed")
     let sub = $(parent).find(".sub-net")
-    let t = parseInt($(cost).val()) * parseInt($(quan).val()) - parseInt($(discount).val())
+    let t = parseFloat($(cost).val()) * parseFloat($(quan).val())
+    t = t - t*parseFloat($(discount).val())/100
+    t = t.toFixed(2)
     $(net_text).text(t)
     $(net).val(t)
     $(sub).val(t)
@@ -153,15 +155,21 @@
     let sub = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
-      sub += parseInt(tmp)
+      sub += parseFloat(tmp)
     })
     $(".tax-value").each(function() {
       let tmp = $(this).text()
-      total += parseInt(tmp)
+      total += parseFloat(tmp)
     })
+    let service = parseFloat(sub*0.1).toFixed(2)
+    $("#service-tax").text("$ "+ service)
     total += sub
-    $("#subtotal").text("$ "+ sub)
-    $("#total-amount").text("$ "+ total)
+    total += parseFloat(service)
+    $("#subtotal").text("$ "+ sub.toFixed(2))
+    let gov = parseFloat(total*0.12).toFixed(2)
+    $("#gov-tax").text("$ "+ gov)
+    total += parseFloat(gov)
+    $("#total-amount").text("$ "+ total.toFixed(2))
   }
 
   $(".quantity-bed").change(function() {

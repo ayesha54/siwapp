@@ -58,25 +58,42 @@ class Customer < ActiveRecord::Base
     where(active: true)
   }
 
+  def gross_total
+    total_tax + net_amount
+  end
+
+  def total_tax
+    tax + service_tax + gov_tax
+  end
+
   def total
-    # customer_items.where(customer_id: id).sum :net_amount || 0
-    total = 0
-    customer_items.each do |item|
-      ct = CustomerItemTax.where(customer_item_id: item.id)
-      tax = Tax.where(id: ct.pluck(:tax_id)).sum :value
-      total += item.net_amount + item.net_amount*tax/100
+    net_amount + tax + service_tax
+  end
+
+  def get_status
+    if due == 0
+      :paid
+    else
+      :pending
     end
-    total
+  end
+
+  def service_tax
+    net_amount*0.1
+  end
+
+  def gov_tax
+    total*0.12
   end
 
   def tax
-    total = 0
+    t = 0
     customer_items.each do |item|
       ct = CustomerItemTax.where(customer_item_id: item.id)
       tax = Tax.where(id: ct.pluck(:tax_id)).sum :value
-      total += item.net_amount*tax/100
+      t += item.net_amount*tax/100
     end
-    total
+    t
   end
 
   def paid
@@ -84,7 +101,7 @@ class Customer < ActiveRecord::Base
   end
 
   def due
-    total - paid
+    gross_total - paid
   end
 
   def to_s

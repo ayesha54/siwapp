@@ -6,6 +6,7 @@
         %tr
           %th.no-wrap=t("customer name")
           %th.no-wrap=t("identification")
+          %th.text-right=t("status")
           %th.text-right=t("pending")
           %th.text-right=t("net amount")
           %th.text-right=t("tax")
@@ -17,10 +18,12 @@
             %td.no-wrap
               =link_to customer.name, edit_customer_path(customer)
             %td.no-wrap= customer.identification
+            %td.text-right
+              %span{class: "status #{customer.get_status}"}= customer.get_status
             %td.text-right= customer.due > 0.0 ? display_money(customer.due) : ""
             %td.text-right= customer.net_amount > 0.0 ? display_money(customer.net_amount) : ""
-            %td.text-right= customer.tax > 0.0 ? display_money(customer.tax) : ""
-            %td.text-right= display_money customer.total
+            %td.text-right= customer.total_tax > 0.0 ? display_money(customer.total_tax) : ""
+            %td.text-right= display_money customer.gross_total
             %td.text-center{"data-no-href": ""}
               %a{class: "material-icons",
                  title: "See Invoices",

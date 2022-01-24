@@ -55,5 +55,7 @@ else
                 subject: "Payment Confirmation: <%= customer %>",
                 email_default: false, template_type: "customer")
 end
-
+Meal.create(name: 'BB') if Meal.where(name: 'BB').first == nil
+Meal.create(name: 'HB') if Meal.where(name: 'HB').first == nil
+Meal.create(name: 'FB') if Meal.where(name: 'FB').first == nil
 User.create(name: "demo",email: "demo@example.com", password: "secret_password")

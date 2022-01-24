@@ -126,7 +126,7 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
@@ -196,7 +196,7 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
