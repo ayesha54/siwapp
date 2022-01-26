@@ -59,7 +59,7 @@ class Customer < ActiveRecord::Base
   }
 
   def gross_total
-    total_tax + net_amount
+    (total_tax + net_amount).round(2)
   end
 
   def total_tax
