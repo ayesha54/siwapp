@@ -9,7 +9,7 @@
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label "No nights"
-    = f.text_field :quantity, :disabled => "disabled", class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
+    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
@@ -19,6 +19,12 @@
     = f.label :discount
     = f.text_field :discount, class: "form-control discount-bed", "data-role": "discount", value: 0
 
+  .invoice-col.invoice-col--taxes.form-group
+    %label{"data-role": "taxes-selector-label"}
+      =t("taxes")
+      %span{data: {role: 'total'}}
+    = f.collection_select :tax_ids, Tax.enabled, :value_id, :to_s, {}, {class: 'form-control c-select tax-select-bed', multiple: true, "data-role": "taxes-selector"}
+
   .invoice-col.invoice-col--total.form-group
     = f.label :net_amount
     %p.form-control-static.js-net-amount-bed= @cost
@@ -26,13 +32,50 @@
 
   = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
     = material_icon.delete
-    %span Remove Line
-
-  -# = f.hidden_field
+    %span.remove-line-customer Remove Line
 
 :javascript
+  $(".remove-line-customer").click(function() {
+    $($(this).closest('.invoice-row')).remove();
+    changeNet(this)
+  })
+  $(".tax-select-bed").change(function() {
+    let self = this
+    let t = 0
+    changeNet(self)
+    if($(self).val() != null) {
+      let val = $(self).val()
+      for(let i = 0; i < val.length; i++) {
+        val[i] = val[i].split('_')[0]
+      }
+      $.ajax({
+        method: "GET",
+        url: "/tax/get_value",
+        data: { id: val }
+      })
+      .success(function( msg ) {
+        let parent = $(self).closest(".invoice-row")
+        let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
+        let net = $(parent).find(".invoice-col .net-amount-bed")
+        let sub = $(parent).find(".sub-net")
+
+        for (let i = 0; i < msg.tax.length; i++) {
+          t += parseFloat(msg.tax[i].value) * parseFloat($(net).val()) / 100
+        }
+        
+        t += parseFloat($(sub).val())
+        $(sub).val(t)
+        changeTotal();
+      });
+    }
+    addTax()
+  })
+  $(".remove_fields").click(function() {
+    changeNet2(this)
+  })
   $(document).ready(function() {
-    getDateDiff();
+    let val = getDateDiff();
+    changeLastQuantityBed(val);
   })
   $(".room-select").change(function() {
     let self = this
@@ -76,6 +119,19 @@
     changeNet(this)
   })
 
+  function changeNet2(e) {
+    let parent = $(e).closest(".invoice-row")
+    let net = $(parent).find(".invoice-col .net-amount-bed")
+    let total = 0
+    $(".js-net-amount-bed").each(function() {
+      let tmp = $(this).text()
+      total += parseFloat(tmp)
+    })
+    total = total - parseFloat($(net).val())
+    $("#subtotal").text("$ "+ total)
+    $("#total-amount").text("$ "+ total)
+  }
+
   function changeNet(e) {
     let parent = $(e).closest(".invoice-row")
     let cost = $(parent).find(".invoice-col .unitary-cost-bed")
@@ -83,22 +139,37 @@
     let net_text = $(parent).find(".invoice-col .js-net-amount-bed")
     let net = $(parent).find(".invoice-col .net-amount-bed")
     let discount = $(parent).find(".discount-bed")
-    let t = parseInt($(cost).val()) * parseInt($(quan).val()) - parseInt($(discount).val())
+    let sub = $(parent).find(".sub-net")
+    let t = parseFloat($(cost).val()) * parseFloat($(quan).val())
+    t = t - t*parseFloat($(discount).val())/100
+    t = t.toFixed(2)
     $(net_text).text(t)
     $(net).val(t)
+    $(sub).val(t)
+    addTax();
     changeTotal();
   }
 
   function changeTotal() {
     let total = 0
+    let sub = 0
     $(".js-net-amount-bed").each(function() {
       let tmp = $(this).text()
-      console.log(tmp)
-      total += parseInt(tmp)
+      sub += parseFloat(tmp)
     })
-    console.log(total)
-    $("#subtotal").text("$ "+ total)
-    $("#total-amount").text("$ "+ total)
+    $(".tax-value").each(function() {
+      let tmp = $(this).text()
+      total += parseFloat(tmp)
+    })
+    let service = parseFloat(sub*0.1).toFixed(2)
+    $("#service-tax").text("$ "+ service)
+    total += sub
+    total += parseFloat(service)
+    $("#subtotal").text("$ "+ sub.toFixed(2))
+    let gov = parseFloat(total*0.12).toFixed(2)
+    $("#gov-tax").text("$ "+ gov)
+    total += parseFloat(gov)
+    $("#total-amount").text("$ "+ total.toFixed(2))
   }
 
   $(".quantity-bed").change(function() {

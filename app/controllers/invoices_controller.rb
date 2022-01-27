@@ -10,6 +10,84 @@ class InvoicesController < CommonsController
     end
   end
 
+  def update
+    @invoice = Invoice.where(id: params[:id]).first
+    @invoice.name = params[:invoice][:name]
+    @invoice.identification = params[:invoice][:identification]
+    @invoice.contact_person = params[:invoice][:contact_person]
+    @invoice.email = params[:invoice][:email]
+    @invoice.invoicing_address = params[:invoice][:invoicing_address]
+    @invoice.shipping_address = params[:invoice][:shipping_address]
+    @invoice.terms = params[:invoice][:terms]
+    @invoice.notes = params[:invoice][:notes]
+    @invoice.currency = params[:invoice][:currency]
+    @invoice.series_id = params[:invoice][:series_id]
+    @invoice.issue_date = params[:invoice][:issue_date]
+    @invoice.due_date = params[:invoice][:due_date]
+    @invoice.email_template_id = params[:invoice][:email_template_id]
+    @invoice.print_template_id = params[:invoice][:print_template_id]
+    @invoice.save!
+
+    Item.where(common_id: params[:id]).destroy_all
+    items = params[:invoice][:items_attributes]
+    tmparr = items.to_s.split('}, "')
+    total = 0
+    tmparr.each do |str|
+      id = str.to_i
+      item = Item.new
+      item.common_id = @invoice.id
+      item.category_id = params[:invoice][:items_attributes][id.to_s][:category_id]
+      item.inventory_id = params[:invoice][:items_attributes][id.to_s][:inventory_id].to_s.split("_")[1]
+      item.quantity = params[:invoice][:items_attributes][id.to_s][:quantity]
+      item.unitary_cost = params[:invoice][:items_attributes][id.to_s][:unitary_cost]
+      item.discount = params[:invoice][:items_attributes][id.to_s][:discount]
+      item.net_amount = params[:invoice][:items_attributes][id.to_s][:net_amount]
+      total += item.net_amount.to_i
+      item.save!
+      params[:invoice][:items_attributes][id.to_s][:tax_ids].each do |val|
+        if val.present?
+          c = ItemsTax.new
+          c.item_id = item.id
+          c.tax_id = val.split('_')[0]
+          c.save!
+        end
+      end
+    end
+    @invoice.gross_amount = total
+    @invoice.save!
+
+    Payment.where(invoice_id: @invoice.id).destroy_all
+    pay = params[:invoice][:payments_attributes]
+    if pay 
+      tmparr = pay.to_s[2..-1].split('}, "')
+      tmparr.each do |str|
+        id = str.to_i
+        pay_invoice = Payment.new
+        pay_invoice.invoice_id = @invoice.id
+        
+        pay_invoice.amount = params[:invoice][:payments_attributes][id.to_s][:amount]
+        pay_invoice.notes = params[:invoice][:payments_attributes][id.to_s][:notes]
+        pay_invoice.date = params[:invoice][:payments_attributes][id.to_s][:date]
+        pay_invoice.save!
+      end
+    end
+
+    redirect_to redirect_address("invoices")
+  end
+
+  def update_content
+    logger.debug(params[:id])
+    item = Item.where(common_id: params[:id])
+    inven = []
+    item.each do |i|
+      inven << Inventory.where(id: i.inventory_id).first.value_id
+    end
+    respond_to do |format|
+      msg = { :data => inven}
+      format.json  { render :json => msg }
+    end
+  end
+
   def edit
     @invoice = Invoice.where(id: params[:id]).first
     ids = Item.where(common_id: @invoice.id).pluck(:inventory_id)
@@ -60,8 +138,15 @@ class InvoicesController < CommonsController
       item.net_amount = params[:invoice][:items_attributes][id.to_s][:net_amount]
       total += item.net_amount.to_i
       item.save!
+      params[:invoice][:items_attributes][id.to_s][:tax_ids].each do |val|
+        if val.present?
+          c = ItemsTax.new
+          c.item_id = item.id
+          c.tax_id = val.split('_')[0]
+          c.save!
+        end
+      end
     end
-    logger.debug "total #{total}"
     @invoice.gross_amount = total
     @invoice.save!
     redirect_to redirect_address("invoices")

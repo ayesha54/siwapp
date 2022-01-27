@@ -1,6 +1,7 @@
 class Tax < ActiveRecord::Base
   acts_as_paranoid
-  has_many :customer_tax
+  has_many :customer_item_tax
+  has_many :items_taxes
   before_destroy :check_is_not_used
 
   validates :name, presence: true
@@ -19,6 +20,10 @@ class Tax < ActiveRecord::Base
 
   def to_s
     name
+  end
+
+  def value_id
+    "#{id}_#{value}_#{name}"
   end
 
   def self.default

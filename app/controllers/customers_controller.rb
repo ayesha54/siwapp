@@ -57,8 +57,16 @@ class CustomersController < ApplicationController
 
   def update_content
     ci = CustomerItem.where(customer_id: params[:id])
-    tax = CustomerTax.where(customer_id: params[:id])
     meal = Customer.where(id: params[:id]).first.meal
+    tax = []
+    ci.each do |x|
+      t = Tax.where(id: x.customer_item_tax.pluck(:tax_id))
+      temp = []
+      t.each do |tmp|
+        temp << tmp.value_id
+      end
+      tax << temp
+    end
     respond_to do |format|
       msg = { :data => ci, :tax => tax, :meal => meal}
       format.json  { render :json => msg }
@@ -90,6 +98,10 @@ class CustomersController < ApplicationController
     tmp = ""
     params[:customer][:meal].each do |val|
       if val.present?
+        meal = Meal.where(name: val).first
+        unless meal
+          Meal.create(name: val)
+        end
         tmp += val + ","
       end
     end
@@ -97,14 +109,14 @@ class CustomersController < ApplicationController
     @customer.save!
     
 
-    params[:customer][:customer_tax][:tax].each do |val|
-      if val.present?
-        tax = CustomerTax.new
-        tax.customer_id = @customer.id
-        tax.tax_id = val.to_i
-        tax.save!
-      end
-    end
+    # params[:customer][:customer_tax][:tax].each do |val|
+    #   if val.present?
+    #     tax = CustomerTax.new
+    #     tax.customer_id = @customer.id
+    #     tax.tax_id = val.to_i
+    #     tax.save!
+    #   end
+    # end
 
     items = params[:customer][:customer_items_attributes]
     tmparr = items.to_s.split('}, "')
@@ -114,11 +126,19 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
       @customeritem.save!
+      params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
+        if val.present?
+          c = CustomerItemTax.new
+          c.customer_item_id = @customeritem.id
+          c.tax_id = val.split('_')[0]
+          c.save!
+        end
+      end
     end
 
     respond_to do |format|
@@ -146,23 +166,25 @@ class CustomersController < ApplicationController
     tmp = ""
     params[:customer][:meal].each do |val|
       if val.present?
+        meal = Meal.where(name: val).first
+        unless meal
+          Meal.create(name: val)
+        end
         tmp += val + ","
       end
     end
     @customer.meal = tmp
     @customer.save!
 
-    @customer.save!
-
-    CustomerTax.where(customer_id: params[:id]).destroy_all
-    params[:customer][:customer_tax][:tax].each do |val|
-      if val.present?
-        tax = CustomerTax.new
-        tax.customer_id = @customer.id
-        tax.tax_id = val.to_i
-        tax.save!
-      end
-    end
+    # CustomerTax.where(customer_id: params[:id]).destroy_all
+    # params[:customer][:customer_tax][:tax].each do |val|
+    #   if val.present?
+    #     tax = CustomerTax.new
+    #     tax.customer_id = @customer.id
+    #     tax.tax_id = val.to_i
+    #     tax.save!
+    #   end
+    # end
 
     CustomerItem.where(customer_id: params[:id]).destroy_all
 
@@ -174,11 +196,20 @@ class CustomersController < ApplicationController
       @customeritem.customer_id = @customer.id
       @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
       @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = @customer.check_out.mjd - @customer.check_in.mjd
+      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
       @customeritem.save!
+      CustomerItemTax.where(customer_item_id: @customeritem.id).destroy_all
+      params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
+        if val.present?
+          c = CustomerItemTax.new
+          c.customer_item_id = @customeritem.id
+          c.tax_id = val.split('_')[0]
+          c.save!
+        end
+      end
     end
 
     PaymentsCustomer.where(customer_id: @customer.id).destroy_all

@@ -1,5 +1,38 @@
+%p.error{style: 'color: red; display: none'} error
 = render 'form'
 
 .action-buttons{"data-role": "action-buttons"}
   = link_to t("back"), :back, class: 'btn btn-secondary'
-  %button.btn.btn-success{type: 'button', data: {role: 'submit-form', target: 'form'}}=t("save")
+  %button.btn.btn-success.fake-submit=t("save")
+  %button.btn.btn-success.real-submit{style: 'display: none', type: 'button', data: {role: 'submit-form', target: 'form'}}=t("save")
+
+:javascript
+  $(".fake-submit").click(function() {
+    $(".customer-required").each(function() {
+      let val = $(this).val()
+      if (val == "" || val === "undefined") {
+        $(".error").show()
+        $(".error").text("Please fill all customer information")
+        window.scrollTo(0, 0);
+        return false;
+      }
+      $(".error").hide()
+    })
+    if(!validEmail($("#customer_email").val()) && $(".error").is(":hidden")) {
+      $(".error").show()
+      $(".error").text("Please enter a valid email")
+      window.scrollTo(0, 0);
+    } else if (validEmail($("#customer_email").val()) && !$(".error").is(":hidden")) {
+      $(".error").hide()
+    }
+
+    if($(".error").is(":hidden")) {
+      console.log("asd")
+      $(".real-submit").click()
+    }
+  })
+
+  function validEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  };

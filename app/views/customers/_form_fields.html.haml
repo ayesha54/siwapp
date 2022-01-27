@@ -4,32 +4,32 @@
       .col-md-6
         .form-group
           = f.label :name
-          = f.text_field :name, class: 'form-control'
+          = f.text_field :name, class: 'form-control customer-required'
       .col-md-6
         .form-group
           = f.label :identification
-          = f.text_field :identification, class: 'form-control'
+          = f.text_field :identification, class: 'form-control customer-required'
 
     .row
       .col-md-6
         .form-group
           = f.label :contact_person
-          = f.text_field :contact_person, class: 'form-control'
+          = f.text_field :contact_person, class: 'form-control customer-required'
       .col-md-6
         .form-group
           = f.label :email
-          = f.email_field :email, class: 'form-control'
+          = f.email_field :email, class: 'form-control customer-required'
 
     .row
       .col-md-6
         .form-group
           = f.label :invoicing_address
-          = f.text_area :invoicing_address, class: 'form-control autosize', "data-address": "invoice"
+          = f.text_area :invoicing_address, class: 'form-control autosize customer-required', "data-address": "invoice"
       .col-md-6
         .form-group
           = f.label :shipping_address
           = link_to t("form_fields.copy invoicing address"), "#", "id": "js-copy-address", "class": "label-small-link"
-          = f.text_area :shipping_address, class: 'form-control autosize', "data-address": "shipping"
+          = f.text_area :shipping_address, class: 'form-control autosize customer-required', "data-address": "shipping"
 
     - unless f.object_name == 'customer'
       .row
