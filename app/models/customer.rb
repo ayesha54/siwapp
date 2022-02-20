@@ -59,7 +59,15 @@ class Customer < ActiveRecord::Base
   }
 
   def gross_total
-    (total_tax + net_amount).round(2)
+    (total_tax + net_amount + service_tax).round(2)
+  end
+
+  def green_tax
+    t = 0
+    customer_items.each do |item|
+      t += item.quantity*3
+    end
+    t
   end
 
   def total_tax
@@ -67,7 +75,7 @@ class Customer < ActiveRecord::Base
   end
 
   def total
-    net_amount + tax + service_tax
+    tax + gov_tax + green_tax
   end
 
   def get_status
@@ -165,14 +173,14 @@ class Customer < ActiveRecord::Base
 
   def get_print_template
     return self.print_template ||
-      Template.find_by(print_default: true) ||
+      Template.find_by(template_type: 'customer',name: "Print Customer") ||
       Template.first
   end
 
   # Returns the invoice template if set, and the default otherwise
   def get_email_template
     return self.email_template ||
-      Template.find_by(email_default: true) ||
+    Template.find_by(template_type: 'customer',name: "Email Customer") ||
       Template.first
   end
 
