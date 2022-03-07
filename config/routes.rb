@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   get '/bed/update_bed', to: "beds#update_bed"
   get '/customer/update_content', to: "customers#update_content"
   get '/invoice/update_content', to: "invoices#update_content"
+  get '/customer/get_by_id', to: "customers#get_by_identification"
   get '/customer/update_cost', to: "customers#update_cost"
   get '/tax/get_value', to: "taxes#get_tax_by_id"
 
@@ -37,6 +38,7 @@ Rails.application.routes.draw do
     get 'chart_data', on: :collection
     get 'send_email', on: :member
     get 'print', on: :member
+    get 'excel', on: :member
   end
 
   resources :recurring_invoices do
@@ -51,6 +53,7 @@ Rails.application.routes.draw do
     resources :recurring_invoices, only: [:index]
     get 'send_email', on: :member
     get 'print', on: :member
+    get 'excel', on: :member
   end
 
   post 'templates/set_default', to: 'templates#set_default'
@@ -68,6 +71,8 @@ Rails.application.routes.draw do
   put 'settings/hooks', to: 'settings#hooks_update'
   get 'settings/api_token'
   post 'settings/api_token'
+  get 'excel', to: 'customers#excel_show'
+  post 'excel/import', to: 'invoices#import'
 
 
   # API

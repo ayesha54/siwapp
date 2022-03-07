@@ -279,7 +279,7 @@
 
   <div class="row">
     <div class="amount">
-      <%= display_money sc+g+net, "usd" %>
+      <%= display_money @customer.gross_total, "usd" %>
       <span class="amount__currency">USD</span>
     </div>
   </div>
@@ -317,19 +317,25 @@
         <tbody>
           <tr>
             <th>Green Tax</th>
-            <td class="total">3$ per person/ night</td>
+            <td class="total"><%= @customer.green_tax %>$ per person/ night</td>
           </tr>
           <tr>
             <th>SC</th>
-            <td class="total"><%= display_money sc, "usd" %></td>
+            <td class="total"><%= display_money @customer.service_tax, "usd" %></td>
           </tr>
           <tr>
             <th>T-GST</th>
-            <td class="total"><%= display_money g, "usd" %></td>
+            <td class="total"><%= display_money @customer.gov_tax, "usd" %></td>
           </tr>
+          <% @customer.tax_by_name.map do |x| %>
+          <tr>
+            <th><%= x[0] %></th>
+            <td class="total"><%= display_money x[1], "usd" %></td>
+          </tr>
+          <% end %>
           <tr class="grand-total">
             <th>Total</th>
-            <td class="total"><%= display_money sc+g+net, "usd" %></td>
+            <td class="total"><%= display_money @customer.gross_total, "usd" %></td>
           </tr>
         </tbody>
       </table>

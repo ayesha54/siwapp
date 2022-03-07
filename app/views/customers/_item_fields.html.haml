@@ -1,11 +1,24 @@
+:css
+  .invoice-row label {
+    font-size: 65%;
+  }
+
 .invoice-row.invoice-item.js-item
   .invoice-col.invoice-col--description.form-group
     = f.label "Room"
     = f.collection_select :room_id, Room.all, :id, :name, {include_blank: false}, {class: 'form-control c-select room-select'}
 
   .invoice-col.invoice-col--description.form-group
-    = f.label "Bed"
+    = f.label "No Pax"
     = f.collection_select :bed_id, @beds, :id, :name, {include_blank: false}, {class: 'form-control c-select bed-select'}
+  
+  .invoice-col.invoice-col--description.form-group
+    = f.label "Room number"
+    = f.text_field :room_number, class: "form-control room-number", "data-role": "room-number"
+
+  .invoice-col.invoice-col--quantity.form-group
+    = f.label "Number of beds"
+    = f.text_field :quantity_bed, class: "form-control no-bed", "data-role": "quantity_bed", value: @quan || 1
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label "No nights"
@@ -13,7 +26,7 @@
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost
-    = f.text_field :unitary_cost, class: "form-control unitary-cost-bed", "data-role": "unitary-cost", value: @cost
+    = f.text_field :unitary_cost, class: "form-control unitary-cost-bed", "data-role": "unitary-cost", value: @cost, readonly: true
 
   .invoice-col.invoice-col--discount.form-group
     = f.label :discount
@@ -29,6 +42,10 @@
     = f.label :net_amount
     %p.form-control-static.js-net-amount-bed= @cost
     = f.hidden_field :net_amount, data: {role: 'net-amount'}, class: "net-amount-bed", value: @cost
+
+  .invoice-col.invoice-col--total.form-group
+    = f.label "Manual cost"
+    %input{:type => "checkbox", :class => "check-manual-cost"}
 
   = link_to_remove_association f, {wrapper_class: 'js-item', class: 'destroy-icon'} do
     = material_icon.delete
@@ -98,6 +115,10 @@
       changeNet(self)
     });
   });
+
+  $(".unitary-cost-bed").change(function() {
+    changeNet(this)
+  })
 
   $(".bed-select").change(function() {
     let id = $(this).val();
@@ -169,9 +190,36 @@
     let gov = parseFloat(total*0.12).toFixed(2)
     $("#gov-tax").text("$ "+ gov)
     total += parseFloat(gov)
+    let green = greenTax();
+    $("#green-tax").text("$ "+ green)
+    total += parseFloat(green)
     $("#total-amount").text("$ "+ total.toFixed(2))
+  }
+
+  function greenTax() {
+    let t = 0;
+    $(".invoice-row").each(function() {
+      let nn = $(this).find(".quantity-bed").val();
+      let nd = $(this).find(".no-bed").val();
+      if (nn !== undefined) {
+        if (!nd) nd = 1
+        t += parseFloat(nn)*parseFloat(nd)*3
+      }
+    })
+    return t;
   }
 
   $(".quantity-bed").change(function() {
     changeNet(this)
   });
+
+  $(".no-bed").change(function() {
+    changeNet(this)
+  });
+
+  $(".check-manual-cost").change(function() {
+    let parent = $(this).closest(".invoice-row")
+    let cost = $(parent).find(".invoice-col .unitary-cost-bed")
+    if($(this).is(":checked")) $(cost).prop("readonly", false);
+    else $(cost).prop("readonly", true);
+  })

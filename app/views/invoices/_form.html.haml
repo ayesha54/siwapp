@@ -96,3 +96,22 @@
   %fieldset.m-b-2
     %legend.m-b-1 Meta Attributes
     = render partial: 'shared/meta_form', locals: {f: f, instance: @invoice}
+
+:javascript
+  $(".customer-vat-id").change(function() {
+    let val = $(this).val()
+    $.ajax({
+      method: "GET",
+      url: "/customer/get_by_id",
+      data: { id: val }
+    })
+    .success(function( msg ) {
+      if(msg.mess) {
+        $(".customer-name").val(msg.data.name)
+        $(".customer-contact-person").val(msg.data.contact_person)
+        $(".customer-email").val(msg.data.email)
+        $(".customer-address").val(msg.data.invoicing_address)
+        $(".customer-shipping").val(msg.data.shipping_address)
+      }
+    });
+  })

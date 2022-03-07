@@ -1,6 +1,14 @@
 class CustomersController < ApplicationController
+
+  skip_before_action :verify_authenticity_token, :only => [:import]
   include MetaAttributesControllerMixin
   include ApplicationHelper
+  require 'rubyXL'
+  require 'rubyXL/convenience_methods/cell'
+  require 'rubyXL/convenience_methods/color'
+  require 'rubyXL/convenience_methods/font'
+  require 'rubyXL/convenience_methods/workbook'
+  require 'rubyXL/convenience_methods/worksheet'
 
   before_action :set_type
   before_action :set_customer, only: [:show, :edit, :update, :destroy]
@@ -130,6 +138,9 @@ class CustomersController < ApplicationController
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+      @customeritem.room_number = params[:customer][:customer_items_attributes][id.to_s][:room_number]
+      @customeritem.quantity_bed = params[:customer][:customer_items_attributes][id.to_s][:quantity_bed]
+      @customeritem.bed_number = params[:customer][:customer_items_attributes][id.to_s][:bed_number]
       @customeritem.save!
       params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
         if val.present?
@@ -200,6 +211,9 @@ class CustomersController < ApplicationController
       @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
       @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
       @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+      @customeritem.room_number = params[:customer][:customer_items_attributes][id.to_s][:room_number]
+      @customeritem.quantity_bed = params[:customer][:customer_items_attributes][id.to_s][:quantity_bed]
+      @customeritem.bed_number = params[:customer][:customer_items_attributes][id.to_s][:bed_number]
       @customeritem.save!
       CustomerItemTax.where(customer_item_id: @customeritem.id).destroy_all
       params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
@@ -271,24 +285,135 @@ class CustomersController < ApplicationController
 
   def print
     @customer = Customer.find(params[:id])
-    @room = Room.where(id: @customer.customer_items.first.room_id).first
-    @bed = Bed.where(id: @customer.customer_items.first.bed_id).first
-    net = @bed.price * (@customer.check_out.mjd - @customer.check_in.mjd)
-    sc = net*0.1
-    g = (net+sc)*0.12
-    html = render_to_string :inline => @customer.get_print_template.template,
-      :locals => {:customer => @customer, :settings => Settings, :room => @room, :bed => @bed, :sc => sc, :g => g, :net => net}
-    respond_to do |format|
-      format.html { render inline: html }
-      format.pdf do
-        pdf = @customer.pdf(html)
-        send_data(pdf,
-          :filename    => "#{@customer}.pdf",
-          :disposition => 'attachment'
-        )
+    if @customer.customer_items.first
+      @room = Room.where(id: @customer.customer_items.first.room_id).first
+      @bed = Bed.where(id: @customer.customer_items.first.bed_id).first
+      net = @bed.price * (@customer.check_out.mjd - @customer.check_in.mjd)
+      html = render_to_string :inline => @customer.get_print_template.template,
+        :locals => {:customer => @customer, :settings => Settings, :room => @room, :bed => @bed}
+      respond_to do |format|
+        format.html { render inline: html }
+        format.pdf do
+          pdf = @customer.pdf(html)
+          send_data(pdf,
+            :filename    => "#{@customer}.pdf",
+            :disposition => 'attachment'
+          )
+        end
+      end
+    else
+      html = render_to_string :inline => @customer.get_print_template.template,
+        :locals => {:customer => @customer, :settings => Settings, :sc => 0, :g => 0, :net => 0}
+      respond_to do |format|
+        format.html { render inline: html }
+        format.pdf do
+          pdf = @customer.pdf(html)
+          send_data(pdf,
+            :filename    => "#{@customer}.pdf",
+            :disposition => 'attachment'
+          )
+        end
       end
     end
   end
+
+  def excel_show
+
+  end
+
+  def import
+    workbook = RubyXL::Parser.parse(params[:excel].path)
+    worksheet = workbook.worksheets[0]
+    worksheet.sheet_data.rows.each do |row|
+      next if row[0].value == "INVOICE #"
+      break if row[0].value.blank?
+      c = Customer.new
+      c.name = row[1].value
+      logger.debug row[4].value.to_s[0..9]
+      c.check_in = DateTime.strptime(row[4].value.to_s[0..9], '%Y-%m-%d')
+      c.check_out = DateTime.strptime(row[5].value.to_s[0..9], '%Y-%m-%d')
+      c.pay_method_1 = row[7].value
+      c.pay_method_2 = row[9].value
+      c.save
+
+      ci = CustomerItem.new
+      b = Bed.where(id: row[2].value).first
+      if b == nil 
+        count = row[2].value - Bed.count
+        if Room.first == nil
+          r = Room.new
+          r.name = "tmp"
+          r.save
+        end
+        count.times do 
+          tmp = Bed.new
+          tmp.price = 1
+          tmp.room_id = 1
+          tmp.name = "tmp"
+          tmp.save
+        end
+        b = Bed.where(id: row[2].value).first
+      end
+      ci.bed_id = b.id
+      ci.room_id = b.room_id
+      ci.net_amount = row[6].value
+      ci.extra = row[8].value
+      ci.customer_id = c.id
+      ci.quantity = c.check_out.mjd - c.check_in.mjd
+      ci.quantity_bed = 1
+      ci.unitary_cost = ci.net_amount/ci.quantity
+      ci.discount = 0
+      ci.save
+    end
+  end
+
+  def excel
+    @customer = Customer.where(id: params[:id])
+    workbook = RubyXL::Parser.parse("app/assets/template/Template.xlsx")
+    worksheet = workbook.worksheets[0]
+    i = 1
+    @customer.each do |c|
+      sub = c.net_amount/1.232
+      sc = sub*0.1
+      gst = (sub+sc)*0.12
+      worksheet.add_cell(i, 0, c.id)
+      worksheet.add_cell(i, 1, c.name)
+      worksheet.add_cell(i, 3, "Q#{current_quarter_months(c.check_in)}-#{c.check_in.year}")
+      worksheet.add_cell(i, 4, c.check_in.to_s)
+      worksheet.add_cell(i, 5, c.check_out.to_s)
+      worksheet.add_cell(i, 6, c.net_amount)
+      worksheet.add_cell(i, 8, 0)
+      worksheet.add_cell(i, 10, c.net_amount)
+      worksheet.add_cell(i, 11, sub)
+      worksheet.add_cell(i, 12, sc)
+      worksheet.add_cell(i, 13, gst)
+      worksheet.add_cell(i, 14, gst+sc+sub)
+      i = i + 1
+    end
+    workbook.write("app/assets/template/download/excel.xlsx")
+
+	  respond_to do |format|
+	    format.html
+	    format.xls { send_file("app/assets/template/download/excel.xlsx",
+                  :filename => "client-suggested-filename.xlsx",
+                  :type => "mime/type") }
+	  end
+  end
+
+  def get_by_identification
+    mess = false
+    c = Customer.where(identification: params[:id]).first
+    mess = true if c != nil
+    respond_to do |format|
+      msg = { :data => c, :mess => mess}
+      format.json  { render :json => msg }
+    end
+  end
+
+  def current_quarter_months(date)
+    (date.month/3.0).ceil
+  end
+  
 
   private
     # Use callbacks to share common setup or constraints between actions.

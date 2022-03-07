@@ -1,0 +1,5 @@
+<%= form_with url: "/excel/import", multipart: true do |form| %>
+    <%= file_field_tag :excel %>
+    <button type="submit">SUBMIT</button>
+<% end %>
+  

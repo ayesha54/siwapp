@@ -1,4 +1,5 @@
 class Customer < ActiveRecord::Base
+  require "csv"
   include MetaAttributes
 
   extend ModelCsv
@@ -58,6 +59,34 @@ class Customer < ActiveRecord::Base
     where(active: true)
   }
 
+  def self.to_xls(options = {})
+
+    CSV.generate(options) do |csv|
+      column_names
+      all.each do |customer|
+        csv << customer.attributes.values_at(*column_names)
+      end
+    end
+  end
+
+  def tax_by_name
+    hash = {}
+    customer_items.each do |item|
+      item.customer_item_tax.each do |x|
+        tax = Tax.where(id: x.tax_id).first
+        key = tax.name
+        value = tax.value*item.net_amount/100
+        if hash.key? key
+          tmp = hash[key]
+          hash[key] = tmp + value
+        else  
+          hash[key] = value
+        end
+      end
+    end
+    hash
+  end
+
   def gross_total
     (total_tax + net_amount + service_tax).round(2)
   end
@@ -65,16 +94,13 @@ class Customer < ActiveRecord::Base
   def green_tax
     t = 0
     customer_items.each do |item|
-      t += item.quantity*3
+      nobed = item.quantity_bed == nil ? 1 : item.quantity_bed
+      t += item.quantity*nobed*3
     end
     t
   end
 
   def total_tax
-    tax + service_tax + gov_tax
-  end
-
-  def total
     tax + gov_tax + green_tax
   end
 
@@ -91,7 +117,7 @@ class Customer < ActiveRecord::Base
   end
 
   def gov_tax
-    total*0.12
+    (net_amount+service_tax+tax)*0.12
   end
 
   def tax
@@ -109,7 +135,7 @@ class Customer < ActiveRecord::Base
   end
 
   def due
-    gross_total - paid
+    (gross_total - paid).round(2)
   end
 
   def to_s
