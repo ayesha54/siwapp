@@ -10,6 +10,62 @@ class InvoicesController < CommonsController
     end
   end
 
+  def import
+    workbook = RubyXL::Parser.parse(params[:excel].path)
+    worksheet = workbook.worksheets[0]
+    if Series.first == nil
+      s = Series.new
+      s.name = 'tmp'
+      s.value = 1
+      s.save
+    end
+    if Category.first == nil
+      r = Category.new
+      r.name = "tmp"
+      r.save
+    end
+    worksheet.sheet_data.rows.each do |row|
+      next if row[0].value == "INVOICE #"
+      break if row[0].value.blank?
+      c = Invoice.new
+      c.name = row[1].value
+      c.issue_date = DateTime.strptime(row[4].value.to_s[0..9], '%Y-%m-%d')
+      c.due_date = DateTime.strptime(row[5].value.to_s[0..9], '%Y-%m-%d')
+      c.pay_method_1 = row[7].value
+      c.pay_method_2 = row[9].value
+      c.identification = 1
+      c.series_id = 1
+      c.net_amount = row[6].value
+      c.gross_amount = row[6].value
+      c.save
+
+      ci = Item.new
+      b = Inventory.new
+      logger.debug row[6].value/(c.due_date.mjd - c.issue_date.mjd)
+      b.price = row[6].value.to_f/(c.due_date.mjd - c.issue_date.mjd).to_f
+      b.category_id = 1
+      b.name = "tmp"
+      b.save
+      ci.inventory_id = b.id
+      ci.category_id = b.category_id
+      ci.net_amount = row[6].value
+      ci.extra = row[8].value
+      ci.common_id = c.id
+      ci.quantity = c.due_date.mjd - c.issue_date.mjd
+      ci.unitary_cost = row[6].value/ci.quantity
+      ci.discount = 0
+      ci.save
+
+      pay_invoice = Payment.new
+      pay_invoice.invoice_id = c.id
+        
+      pay_invoice.amount = row[6].value
+      pay_invoice.date = c.due_date
+      pay_invoice.save!
+    end
+    redirect_to "/invoices"
+  end
+
   def update
     @invoice = Invoice.where(id: params[:id]).first
     @invoice.name = params[:invoice][:name]
@@ -206,6 +262,14 @@ class InvoicesController < CommonsController
     rescue Exception => e
       redirect_back(fallback_location: root_path, alert: e.message)
     end
+  end
+
+  def excel
+    @invoice = Invoice.where(id: params[:id])
+	  respond_to do |format|
+	    format.html
+	    format.xls { send_data @invoice.to_xls(col_sep: "\t") }
+	  end
   end
 
   # Renders a common's template in html and pdf formats

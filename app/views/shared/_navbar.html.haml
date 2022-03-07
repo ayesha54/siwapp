@@ -35,6 +35,8 @@
           .dropdown-divider
           %a.dropdown-item{:href => rooms_path}=t("rooms")
           .dropdown-divider
+          %a.dropdown-item{:href => "/excel"}=t("import excel")
+          .dropdown-divider
           = link_to t("log out"), logout_path, method: "delete", class: "dropdown-item"
 
 

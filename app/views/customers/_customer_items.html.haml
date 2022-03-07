@@ -108,11 +108,14 @@
         })
       .success(function( msg ) {
         for(let i = 0; i < msg.data.length; i++) {
+          console.log(msg.data[i].net_amount)
           $($(".quantity-bed")[i]).val(msg.data[i].quantity)
           $($(".js-net-amount-bed")[i]).text(msg.data[i].net_amount)
           $($(".net-amount-bed")[i]).val(msg.data[i].net_amount)
           $($(".unitary-cost-bed")[i]).val(msg.data[i].unitary_cost)
           $($(".discount-bed")[i]).val(msg.data[i].discount)
+          $($(".room-number")[i]).val(msg.data[i].room_number)
+          $($(".no-bed")[i]).val(parseInt(msg.data[i].quantity_bed) || 1)
         }
 
         for(let i = 0; i < msg.tax.length; i++) {

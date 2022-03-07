@@ -23,6 +23,7 @@ gem 'sdoc', group: :doc
 
 # Use ActiveModel has_secure_password
 gem 'bcrypt'
+gem 'rubyXL'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

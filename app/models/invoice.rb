@@ -1,4 +1,5 @@
 class Invoice < Common
+  require "csv"
   # Relations
   belongs_to :recurring_invoice, optional: true
   has_many :payments, dependent: :destroy
@@ -52,6 +53,15 @@ class Invoice < Common
     rescue ActiveModel::MissingAttributeError
     end
     super
+  end
+
+  def self.to_xls(options = {})
+    CSV.generate(options) do |csv|
+      csv << column_names
+      all.each do |invoice|
+        csv << invoice.attributes.values_at(*column_names)
+      end
+    end
   end
 
   # acts_as_paranoid behavior
