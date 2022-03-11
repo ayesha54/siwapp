@@ -1,5 +1,5 @@
 class InvoicesController < CommonsController
-
+  VALID_EMAIL_REGEX = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
   def show
     # Shows the template in an iframe
     if @invoice.get_status != :paid
