@@ -167,7 +167,7 @@ class InvoicesController < CommonsController
 
   def create
     path = "/invoices"
-    if Invoice.where(name: params[:invoice][:name]).first
+    if Invoice.where(name: params[:invoice][:name].strip!).first
       flash[:alert] = "Invoice name has already existed"
       path = "/invoices/new"
     elsif !is_valid_email? params[:invoice][:email]
@@ -175,7 +175,7 @@ class InvoicesController < CommonsController
       path = "/invoices/new"
     else
       @invoice = Invoice.new
-      @invoice.name = params[:invoice][:name]
+      @invoice.name = params[:invoice][:name].strip!
       @invoice.identification = params[:invoice][:identification]
       @invoice.contact_person = params[:invoice][:contact_person]
       @invoice.email = params[:invoice][:email]
