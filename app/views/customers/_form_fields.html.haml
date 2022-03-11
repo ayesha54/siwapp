@@ -7,7 +7,7 @@
           = f.text_field :name, class: 'form-control customer-required customer-name'
       .col-md-6
         .form-group
-          = f.label :identification
+          = f.label "reservation ID"
           = f.text_field :identification, class: 'form-control customer-required customer-vat-id'
 
     .row
@@ -25,11 +25,6 @@
         .form-group
           = f.label :invoicing_address
           = f.text_area :invoicing_address, class: 'form-control autosize customer-required customer-address', "data-address": "invoice"
-      .col-md-6
-        .form-group
-          = f.label :shipping_address
-          = link_to t("form_fields.copy invoicing address"), "#", "id": "js-copy-address", "class": "label-small-link"
-          = f.text_area :shipping_address, class: 'form-control autosize customer-required customer-shipping', "data-address": "shipping"
 
     - unless f.object_name == 'customer'
       .row

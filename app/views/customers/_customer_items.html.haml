@@ -94,6 +94,14 @@
     $(".quantity-bed").last().val(val)
     triggerRoom()
   }
+  $(".select-checkin").change(function() {
+    let val = getDateDiff();
+    changeAllQuantityBed(val)
+  });
+  $(".select-checkout").change(function() {
+    let val = getDateDiff();
+    changeAllQuantityBed(val)
+  });
   $(document).ready(function() {
     let val = getDateDiff();
     changeAllQuantityBed(val)
