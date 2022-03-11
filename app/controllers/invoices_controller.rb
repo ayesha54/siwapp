@@ -161,51 +161,65 @@ class InvoicesController < CommonsController
     render
   end
 
-  def create
-    @invoice = Invoice.new
-    @invoice.name = params[:invoice][:name]
-    @invoice.identification = params[:invoice][:identification]
-    @invoice.contact_person = params[:invoice][:contact_person]
-    @invoice.email = params[:invoice][:email]
-    @invoice.invoicing_address = params[:invoice][:invoicing_address]
-    @invoice.shipping_address = params[:invoice][:shipping_address]
-    @invoice.terms = params[:invoice][:terms]
-    @invoice.notes = params[:invoice][:notes]
-    @invoice.currency = params[:invoice][:currency]
-    @invoice.series_id = params[:invoice][:series_id]
-    @invoice.issue_date = params[:invoice][:issue_date]
-    @invoice.due_date = params[:invoice][:due_date]
-    @invoice.email_template_id = params[:invoice][:email_template_id]
-    @invoice.print_template_id = params[:invoice][:print_template_id]
-    @invoice.save!
+  def is_valid_email? email
+    email =~ VALID_EMAIL_REGEX
+  end
 
-    items = params[:invoice][:items_attributes]
-    tmparr = items.to_s.split('}, "')
-    total = 0
-    tmparr.each do |str|
-      id = str.to_i
-      item = Item.new
-      item.common_id = @invoice.id
-      item.category_id = params[:invoice][:items_attributes][id.to_s][:category_id]
-      item.inventory_id = params[:invoice][:items_attributes][id.to_s][:inventory_id].to_s.split("_")[1]
-      item.quantity = params[:invoice][:items_attributes][id.to_s][:quantity]
-      item.unitary_cost = params[:invoice][:items_attributes][id.to_s][:unitary_cost]
-      item.discount = params[:invoice][:items_attributes][id.to_s][:discount]
-      item.net_amount = params[:invoice][:items_attributes][id.to_s][:net_amount]
-      total += item.net_amount.to_i
-      item.save!
-      params[:invoice][:items_attributes][id.to_s][:tax_ids].each do |val|
-        if val.present?
-          c = ItemsTax.new
-          c.item_id = item.id
-          c.tax_id = val.split('_')[0]
-          c.save!
+  def create
+    path = "/invoices"
+    if Invoice.where(name: params[:invoice][:name]).first
+      flash[:alert] = "Invoice name has already existed"
+      path = "/invoices/new"
+    elsif !is_valid_email? params[:invoice][:email]
+      flash[:alert] = "Email is invalid"
+      path = "/invoices/new"
+    else
+      @invoice = Invoice.new
+      @invoice.name = params[:invoice][:name]
+      @invoice.identification = params[:invoice][:identification]
+      @invoice.contact_person = params[:invoice][:contact_person]
+      @invoice.email = params[:invoice][:email]
+      @invoice.invoicing_address = params[:invoice][:invoicing_address]
+      @invoice.shipping_address = params[:invoice][:shipping_address]
+      @invoice.terms = params[:invoice][:terms]
+      @invoice.notes = params[:invoice][:notes]
+      @invoice.currency = params[:invoice][:currency]
+      @invoice.series_id = params[:invoice][:series_id]
+      @invoice.issue_date = params[:invoice][:issue_date]
+      @invoice.due_date = params[:invoice][:due_date]
+      @invoice.email_template_id = params[:invoice][:email_template_id]
+      @invoice.print_template_id = params[:invoice][:print_template_id]
+      @invoice.save!
+
+      items = params[:invoice][:items_attributes]
+      tmparr = items.to_s.split('}, "')
+      total = 0
+      tmparr.each do |str|
+        id = str.to_i
+        item = Item.new
+        item.common_id = @invoice.id
+        item.category_id = params[:invoice][:items_attributes][id.to_s][:category_id]
+        item.inventory_id = params[:invoice][:items_attributes][id.to_s][:inventory_id].to_s.split("_")[1]
+        item.quantity = params[:invoice][:items_attributes][id.to_s][:quantity]
+        item.unitary_cost = params[:invoice][:items_attributes][id.to_s][:unitary_cost]
+        item.discount = params[:invoice][:items_attributes][id.to_s][:discount]
+        item.net_amount = params[:invoice][:items_attributes][id.to_s][:net_amount]
+        total += item.net_amount.to_i
+        item.save!
+        params[:invoice][:items_attributes][id.to_s][:tax_ids].each do |val|
+          if val.present?
+            c = ItemsTax.new
+            c.item_id = item.id
+            c.tax_id = val.split('_')[0]
+            c.save!
+          end
         end
       end
+      @invoice.gross_amount = total
+      @invoice.save!
     end
-    @invoice.gross_amount = total
-    @invoice.save!
-    redirect_to redirect_address("invoices")
+    
+    redirect_to path
   end
 
   # GET /invoices/new
