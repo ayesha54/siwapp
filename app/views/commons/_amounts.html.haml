@@ -2,6 +2,12 @@
   %tr
     %th{scope: "row"} #{t("subtotal")}:
     %td= display_money invoice.net_amount, invoice.currency
+  %tr
+    %th{scope: "row"} #{t("Service charge")}:
+    %td= display_money invoice.service, invoice.currency
+  %tr
+    %th{scope: "row"} #{t("GST")}:
+    %td= display_money invoice.gst, invoice.currency
   - invoice.taxes.each do |tax, value|
     %tr
       %th{scope: "row"}= tax.name

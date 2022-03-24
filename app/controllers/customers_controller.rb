@@ -1,5 +1,5 @@
 class CustomersController < ApplicationController
-
+  VALID_EMAIL_REGEX = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
   skip_before_action :verify_authenticity_token, :only => [:import]
   include MetaAttributesControllerMixin
   include ApplicationHelper
@@ -89,76 +89,87 @@ class CustomersController < ApplicationController
     end
   end
 
+  def is_valid_email? email
+    email =~ VALID_EMAIL_REGEX
+  end
+
   # POST /customers
   # POST /customers.json
   def create
-    @customer = Customer.new
-    @customer.name = params[:customer][:name]
-    @customer.identification = params[:customer][:identification]
-    @customer.email = params[:customer][:email]
-    @customer.contact_person = params[:customer][:contact_person]
-    @customer.invoicing_address = params[:customer][:invoicing_address]
-    @customer.shipping_address = params[:customer][:shipping_address]
-    @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
-    @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
-    @customer.check_in = params[:customer][:check_in]
-    @customer.check_out = params[:customer][:check_out]
-    tmp = ""
-    params[:customer][:meal].each do |val|
-      if val.present?
-        meal = Meal.where(name: val).first
-        unless meal
-          Meal.create(name: val)
-        end
-        tmp += val + ","
-      end
-    end
-    @customer.meal = tmp
-    @customer.save!
-    
-
-    # params[:customer][:customer_tax][:tax].each do |val|
-    #   if val.present?
-    #     tax = CustomerTax.new
-    #     tax.customer_id = @customer.id
-    #     tax.tax_id = val.to_i
-    #     tax.save!
-    #   end
-    # end
-
-    items = params[:customer][:customer_items_attributes]
-    tmparr = items.to_s.split('}, "')
-    tmparr.each do |str|
-      id = str.to_i
-      @customeritem = CustomerItem.new
-      @customeritem.customer_id = @customer.id
-      @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
-      @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
-      @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
-      @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
-      @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
-      @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
-      @customeritem.room_number = params[:customer][:customer_items_attributes][id.to_s][:room_number]
-      @customeritem.quantity_bed = params[:customer][:customer_items_attributes][id.to_s][:quantity_bed]
-      @customeritem.bed_number = params[:customer][:customer_items_attributes][id.to_s][:bed_number]
-      @customeritem.save!
-      params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
+    path = "/customers"
+    if Customer.where(name: params[:customer][:name].strip).first
+      flash[:alert] = "Customer name has already existed"
+      path = "/customers/new"
+    elsif !is_valid_email? params[:customer][:email]
+      flash[:alert] = "Email is invalid"
+      path = "/customers/new"
+    elsif Customer.where(identification: params[:customer][:identification].strip).first
+      flash[:alert] = "Customer identification has already existed"
+      path = "/customers/new"
+    else
+      @customer = Customer.new
+      @customer.name = params[:customer][:name]
+      @customer.identification = params[:customer][:identification]
+      @customer.email = params[:customer][:email]
+      @customer.contact_person = params[:customer][:contact_person]
+      @customer.invoicing_address = params[:customer][:invoicing_address]
+      @customer.shipping_address = params[:customer][:shipping_address]
+      @customer.print_template_id = params[:customer][:print_template_id].to_s.to_i
+      @customer.email_template_id = params[:customer][:email_template_id].to_s.to_i
+      @customer.check_in = params[:customer][:check_in]
+      @customer.check_out = params[:customer][:check_out]
+      tmp = ""
+      params[:customer][:meal].each do |val|
         if val.present?
-          c = CustomerItemTax.new
-          c.customer_item_id = @customeritem.id
-          c.tax_id = val.split('_')[0]
-          c.save!
+          meal = Meal.where(name: val).first
+          unless meal
+            Meal.create(name: val)
+          end
+          tmp += val + ","
         end
       end
-    end
+      @customer.meal = tmp
+      @customer.save!
+      
 
-    respond_to do |format|
-      if @customer.save
-        format.html { redirect_to redirect_address("customers"), notice: 'Customer was successfully created.' }
-      else
-        format.html { render :new }
+      # params[:customer][:customer_tax][:tax].each do |val|
+      #   if val.present?
+      #     tax = CustomerTax.new
+      #     tax.customer_id = @customer.id
+      #     tax.tax_id = val.to_i
+      #     tax.save!
+      #   end
+      # end
+
+      items = params[:customer][:customer_items_attributes]
+      tmparr = items.to_s.split('}, "')
+      tmparr.each do |str|
+        id = str.to_i
+        @customeritem = CustomerItem.new
+        @customeritem.customer_id = @customer.id
+        @customeritem.room_id = params[:customer][:customer_items_attributes][id.to_s][:room_id]
+        @customeritem.bed_id = params[:customer][:customer_items_attributes][id.to_s][:bed_id].to_s.split("_")[0]
+        @customeritem.quantity = params[:customer][:customer_items_attributes][id.to_s][:quantity]
+        @customeritem.discount = params[:customer][:customer_items_attributes][id.to_s][:discount] || 0
+        @customeritem.unitary_cost = params[:customer][:customer_items_attributes][id.to_s][:unitary_cost]
+        @customeritem.net_amount = params[:customer][:customer_items_attributes][id.to_s][:net_amount]
+        @customeritem.room_number = params[:customer][:customer_items_attributes][id.to_s][:room_number]
+        @customeritem.quantity_bed = params[:customer][:customer_items_attributes][id.to_s][:quantity_bed]
+        @customeritem.bed_number = params[:customer][:customer_items_attributes][id.to_s][:bed_number]
+        @customeritem.save!
+        params[:customer][:customer_items_attributes][id.to_s][:tax_ids].each do |val|
+          if val.present?
+            c = CustomerItemTax.new
+            c.customer_item_id = @customeritem.id
+            c.tax_id = val.split('_')[0]
+            c.save!
+          end
+        end
       end
+      @customer.save
     end
+    
+    redirect_to path
   end
 
   # PATCH/PUT /customers/1

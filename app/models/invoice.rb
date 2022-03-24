@@ -138,11 +138,19 @@ class Invoice < Common
     total
   end
 
+  def gst
+    (net_amount+service)*0.12
+  end
+
+  def service
+    net_amount*0.1
+  end
+
   # Public: Returns the amount that has not been already paid.
   #
   # Returns a double.
   def unpaid_amount
-    total - paid_amount
+    gross_amount - paid_amount
   end
 
   # Public: Adds a payment for the remaining unpaid amount and updates the

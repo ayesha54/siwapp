@@ -1,7 +1,11 @@
 class InventoriesController < ApplicationController
 
+  DISPLAY_PER_PAGE = 10
+
   def index   
-    @inventories = Inventory.all.paginate(page: params[:page], per_page: 20)
+    @inventories = Inventory.all.paginate(page: params[:page], per_page: DISPLAY_PER_PAGE)
+    @total_page = (Inventory.count.to_f / DISPLAY_PER_PAGE.to_f).ceil
+    @page = params[:page].to_i
   end   
    
   # GET method to get a Inventory by id   

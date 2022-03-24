@@ -109,7 +109,6 @@ class InvoicesController < CommonsController
         end
       end
     end
-    @invoice.gross_amount = total
     @invoice.save!
 
     Payment.where(invoice_id: @invoice.id).destroy_all
@@ -167,12 +166,15 @@ class InvoicesController < CommonsController
 
   def create
     path = "/invoices"
-    if Invoice.where(name: params[:invoice][:name].strip!).first
+    if Invoice.where(name: params[:invoice][:name].strip).first
       flash[:alert] = "Invoice name has already existed"
       path = "/invoices/new"
     elsif !is_valid_email? params[:invoice][:email]
       flash[:alert] = "Email is invalid"
       path = "/invoices/new"
+    elsif Invoice.where(identification: params[:invoice][:identification].strip).first
+      flash[:alert] = "Customer identification has already existed"
+      path = "/customers/new"
     else
       @invoice = Invoice.new
       @invoice.name = params[:invoice][:name].strip!
@@ -215,7 +217,6 @@ class InvoicesController < CommonsController
           end
         end
       end
-      @invoice.gross_amount = total
       @invoice.save!
     end
     
