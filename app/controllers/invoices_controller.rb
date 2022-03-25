@@ -126,6 +126,8 @@ class InvoicesController < CommonsController
         pay_invoice.save!
       end
     end
+    @invoice.update_amounts
+    @invoice.update_paid
 
     redirect_to redirect_address("invoices")
   end
@@ -174,10 +176,10 @@ class InvoicesController < CommonsController
       path = "/invoices/new"
     elsif Invoice.where(identification: params[:invoice][:identification].strip).first
       flash[:alert] = "Customer identification has already existed"
-      path = "/customers/new"
+      path = "/invoices/new"
     else
       @invoice = Invoice.new
-      @invoice.name = params[:invoice][:name].strip!
+      @invoice.name = params[:invoice][:name].strip
       @invoice.identification = params[:invoice][:identification]
       @invoice.contact_person = params[:invoice][:contact_person]
       @invoice.email = params[:invoice][:email]
@@ -217,7 +219,8 @@ class InvoicesController < CommonsController
           end
         end
       end
-      @invoice.save!
+      @invoice.update_amounts
+      @invoice.update_paid
     end
     
     redirect_to path

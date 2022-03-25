@@ -327,6 +327,14 @@
             <th>Subtotal</th>
             <td class="total"><%= display_money invoice.net_amount, invoice.currency %></td>
           </tr>
+          <tr>
+            <th>Service</th>
+            <td class="total"><%= display_money invoice.service, invoice.currency %></td>
+          </tr>
+          <tr>
+            <th>GST</th>
+            <td class="total"><%= display_money invoice.gst, invoice.currency %></td>
+          </tr>
           <% invoice.taxes.each do |tax, value| %>
             <tr>
               <th><%= tax %></th>
