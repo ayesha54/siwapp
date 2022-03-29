@@ -439,6 +439,14 @@
                           <th style="Margin: 0; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right">Subtotal</th>
                           <td class="total" style="-moz-hyphens: auto; -webkit-hyphens: auto; Margin: 0; border-collapse: collapse !important; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: normal; hyphens: auto; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right; vertical-align: top; white-space: nowrap; word-wrap: break-word"><%= display_money invoice.net_amount, @invoice.currency %></td>
                         </tr>
+                        <tr style="padding: 0; text-align: left; vertical-align: top">
+                          <th style="Margin: 0; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right">Service</th>
+                          <td class="total" style="-moz-hyphens: auto; -webkit-hyphens: auto; Margin: 0; border-collapse: collapse !important; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: normal; hyphens: auto; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right; vertical-align: top; white-space: nowrap; word-wrap: break-word"><%= display_money invoice.service, @invoice.currency %></td>
+                        </tr>
+                        <tr style="padding: 0; text-align: left; vertical-align: top">
+                          <th style="Margin: 0; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right">GST</th>
+                          <td class="total" style="-moz-hyphens: auto; -webkit-hyphens: auto; Margin: 0; border-collapse: collapse !important; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: normal; hyphens: auto; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right; vertical-align: top; white-space: nowrap; word-wrap: break-word"><%= display_money invoice.gst, @invoice.currency %></td>
+                        </tr>
                         <% invoice.taxes.each do |tax, value| %>
                           <tr style="padding: 0; text-align: left; vertical-align: top">
                             <th style="Margin: 0; color: #3d3f3e; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; line-height: 1.5; margin: 0; padding: .625rem; padding-top: 0; text-align: right"><%= tax %></th>

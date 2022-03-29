@@ -9,7 +9,7 @@
     = f.collection_select :room_id, Room.all, :id, :name, {include_blank: false}, {class: 'form-control c-select room-select'}
 
   .invoice-col.invoice-col--description.form-group
-    = f.label "No Pax"
+    = f.label "Bed type"
     = f.collection_select :bed_id, @beds, :id, :name, {include_blank: false}, {class: 'form-control c-select bed-select'}
   
   .invoice-col.invoice-col--description.form-group
@@ -17,12 +17,12 @@
     = f.text_field :room_number, class: "form-control room-number", "data-role": "room-number"
 
   .invoice-col.invoice-col--quantity.form-group
-    = f.label "Number of beds"
+    = f.label "No Pax"
     = f.text_field :quantity_bed, class: "form-control no-bed", "data-role": "quantity_bed", value: @quan || 1
 
   .invoice-col.invoice-col--quantity.form-group
     = f.label "No nights"
-    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1
+    = f.text_field :quantity, class: "form-control quantity-bed", "data-role": "quantity", value: @quan || 1, readonly: true
 
   .invoice-col.invoice-col--amount.form-group
     = f.label :unitary_cost

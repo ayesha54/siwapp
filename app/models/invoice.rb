@@ -14,7 +14,7 @@ class Invoice < Common
   # Events
   around_save :assign_invoice_number
   after_save :purge_payments
-  after_save :update_paid
+  # after_save :update_paid
 
   after_initialize :init
 
@@ -138,11 +138,19 @@ class Invoice < Common
     total
   end
 
+  def gst
+    (net_amount+service)*0.12
+  end
+
+  def service
+    net_amount*0.1
+  end
+
   # Public: Returns the amount that has not been already paid.
   #
   # Returns a double.
   def unpaid_amount
-    total - paid_amount
+    (gross_amount - paid_amount).round(2)
   end
 
   # Public: Adds a payment for the remaining unpaid amount and updates the
@@ -180,7 +188,7 @@ class Invoice < Common
       self.paid_amount += payment.amount
     end
 
-    if self.paid_amount - self.gross_amount >= 0
+    if (self.paid_amount - self.gross_amount).round(2) >= 0
       self.paid = true
     end
   end

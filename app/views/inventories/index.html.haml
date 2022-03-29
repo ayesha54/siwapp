@@ -1,3 +1,14 @@
+:css
+  .paging{
+    display: flex;
+    justify-content: center;
+  }
+
+  .page-item {
+    width: 2%;
+    text-align: center;
+  }
+
 %h1="Inventory LIST"
 %div
   = link_to 'Add Inventory', new_inventory_path
@@ -19,5 +30,20 @@
             %td.text-center
               = link_to 'Edit', edit_inventory_path(inventory), class: "btn btn-primary"
               = link_to 'Delete', inventory_path(inventory), method: :delete, class:"btn btn-danger"
+  .paging
+    - if @page > 2
+      %a.page-item{:href => "?page=1"} First
+      %a.page-item{:href => "#"} ...
+    - if @page > 1
+      %a.page-item{:href => "?page=#{@page-1}"}
+        = @page-1
+    %a.page-item{:href => "?page=#{@page}"}
+      = @page
+    - if @page < @total_page
+      %a.page-item{:href => "?page=#{@page+1}"}
+        = @page+1
+    - if @page < @total_page - 1
+      %a.page-item{:href => "#"} ...
+      %a.page-item{:href => "?page=#{@total_page}"} Last
   .content-loading.hide{data: {role: 'infinite-status'}}
     .spinner
