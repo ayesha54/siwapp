@@ -58,4 +58,5 @@ end
 Meal.create(name: 'BB') if Meal.where(name: 'BB').first == nil
 Meal.create(name: 'HB') if Meal.where(name: 'HB').first == nil
 Meal.create(name: 'FB') if Meal.where(name: 'FB').first == nil
-User.create(name: "demo",email: "demo@example.com", password: "secret_password")
+User.create(name: "demo",email: "demo@example.com", password: "secret_password") unless User.where(name: "demo").first
+User.create(name: "admin",email: "administration@kihabeach.com", password: "kihaDRV@INVM6699") unless User.where(name: "admin").first
