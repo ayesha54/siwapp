@@ -1,15 +1,10 @@
 class ApplicationMailer < ActionMailer::Base
-  mailertogo_host     = ENV.fetch("MAILERTOGO_SMTP_HOST")
-  mailertogo_port     = ENV.fetch("MAILERTOGO_SMTP_PORT", 587)
-  mailertogo_user     = ENV.fetch("MAILERTOGO_SMTP_USER")
-  mailertogo_password = ENV.fetch("MAILERTOGO_SMTP_PASSWORD")
-  mailertogo_domain   = ENV.fetch("MAILERTOGO_DOMAIN", "mydomain.com")
   self.smtp_settings = {
-    :address              => mailertogo_host,
-    :port                 => mailertogo_port,
-    :user_name            => mailertogo_user,
-    :password             => mailertogo_password,
-    :domain               => mailertogo_domain,
+    :address              => ENV.fetch("MAILERTOGO_SMTP_HOST"),
+    :port                 => ENV.fetch("MAILERTOGO_SMTP_PORT", 587),
+    :user_name            => ENV.fetch("MAILERTOGO_SMTP_USER"),
+    :password             => ENV.fetch("MAILERTOGO_SMTP_PASSWORD"),
+    :domain               => ENV.fetch("MAILERTOGO_DOMAIN", "mydomain.com"),
     :authentication       => :plain,
     :enable_starttls_auto => true
   }
