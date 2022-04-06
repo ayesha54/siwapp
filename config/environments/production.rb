@@ -64,6 +64,15 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "siwapp_#{Rails.env}"
 
   config.action_mailer.perform_caching = false
+  config.action_mailer.smtp_settings = {
+    :address              => ENV.fetch("MAILERTOGO_SMTP_HOST"),
+    :port                 => ENV.fetch("MAILERTOGO_SMTP_PORT", 587),
+    :user_name            => ENV.fetch("MAILERTOGO_SMTP_USER"),
+    :password             => ENV.fetch("MAILERTOGO_SMTP_PASSWORD"),
+    :domain               => ENV.fetch("MAILERTOGO_DOMAIN", "mydomain.com"),
+    :authentication       => :plain,
+    :enable_starttls_auto => true
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
