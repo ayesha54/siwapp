@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     post 'select_print_template', on: :member
     get 'autocomplete', on: :collection
     get 'chart_data', on: :collection
-    get 'send_email', on: :member
+    # get 'send_email', on: :member
     get 'print', on: :member
     get 'excel', on: :member
   end
@@ -51,7 +51,7 @@ Rails.application.routes.draw do
     get 'autocomplete', on: :collection
     resources :invoices, only: [:index]
     resources :recurring_invoices, only: [:index]
-    get 'send_email', on: :member
+    # get 'send_email', on: :member
     get 'print', on: :member
     get 'excel', on: :member
   end

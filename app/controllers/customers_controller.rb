@@ -284,15 +284,15 @@ class CustomersController < ApplicationController
     end
   end
 
-  def send_email
-    @customer = Customer.find(params[:id])
-    begin
-      @customer.send_email
-      redirect_back(fallback_location: root_path, notice: 'Email successfully sent.')
-    rescue Exception => e
-      redirect_back(fallback_location: root_path, alert: e.message)
-    end
-  end
+  # def send_email
+  #   @customer = Customer.find(params[:id])
+  #   begin
+  #     @customer.send_email
+  #     redirect_back(fallback_location: root_path, notice: 'Email successfully sent.')
+  #   rescue Exception => e
+  #     redirect_back(fallback_location: root_path, alert: e.message)
+  #   end
+  # end
 
   def print
     @customer = Customer.find(params[:id])

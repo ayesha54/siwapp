@@ -272,15 +272,15 @@ class InvoicesController < CommonsController
     render
   end
 
-  def send_email
-    @invoice = Invoice.find(params[:id])
-    begin
-      @invoice.send_email
-      redirect_back(fallback_location: root_path, notice: 'Email successfully sent.')
-    rescue Exception => e
-      redirect_back(fallback_location: root_path, alert: e.message)
-    end
-  end
+  # def send_email
+  #   @invoice = Invoice.find(params[:id])
+  #   begin
+  #     @invoice.send_email
+  #     redirect_back(fallback_location: root_path, notice: 'Email successfully sent.')
+  #   rescue Exception => e
+  #     redirect_back(fallback_location: root_path, alert: e.message)
+  #   end
+  # end
 
   def excel
     @invoice = Invoice.where(id: params[:id])

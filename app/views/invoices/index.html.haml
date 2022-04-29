@@ -33,7 +33,6 @@
             %th.no-wrap= sort_link(@search, :number, t("reference"))
             %th.no-wrap= sort_link(@search, :name, t("customer name"))
             %th.no-wrap= sort_link(@search, :issue_date, t("date"))
-            %th.text-center= sort_link(@search, :sent_by_email, t("sent"))
             %th.text-center= sort_link(@search, :status, t("status"))
             %th.text-right=t("pending")
             %th.text-right= sort_link(@search, :gross_amount, t("total"))
@@ -44,7 +43,6 @@
 
 .action-buttons{"data-role": "action-buttons"}
   = link_to t("delete"), '#', class: 'btn btn-danger float-xs-left', data: {confirm: 'are you sure?', role: 'submit-form', action: 'delete', target: '#js-list-form'}
-  = link_to t("send email"), '#', class: 'btn btn-primary', data: {role: 'submit-form', action: 'send_email', target: '#js-list-form'}
   = link_to t("set paid"), '#', class: 'btn btn-primary', data: {role: 'submit-form', action: 'set_paid', target: '#js-list-form'}
   = link_to t("download pdf"), '#', class: 'btn btn-primary', data: {role: 'submit-form', action: 'pdf', target: '#js-list-form'}
   = link_to t("duplicate"), '#', class: 'btn btn-primary', data: { role: 'submit-form', action: 'duplicate', target: '#js-list-form'}

@@ -17,20 +17,20 @@ class Api::V1::InvoicesController < Api::V1::CommonsController
     end
   end
 
-  def send_email
-    @invoice = Invoice.find(params[:id])
-    if params && params[:template_id]
-      @invoice.email_template = Template.find(params[:template_id])
-      @invoice.save
-    end
-    begin
-      @invoice.send_email
-      render json: {"message": "E-mail succesfully sent."}, status: :ok
+  # def send_email
+  #   @invoice = Invoice.find(params[:id])
+  #   if params && params[:template_id]
+  #     @invoice.email_template = Template.find(params[:template_id])
+  #     @invoice.save
+  #   end
+  #   begin
+  #     @invoice.send_email
+  #     render json: {"message": "E-mail succesfully sent."}, status: :ok
 
-    rescue Exception => e
-      render json: {"message": e.message}, status: :error
-    end
-  end
+  #   rescue Exception => e
+  #     render json: {"message": e.message}, status: :error
+  #   end
+  # end
 
   def stats
     date_from, date_to = get_stats_dates_values params
